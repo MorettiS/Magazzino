@@ -1,0 +1,482 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE rete SYSTEM "format.dtd" >
+
+<rete>
+
+	<linea nome="256">
+		<sezione>
+			<tratta id ="1" v_max="80" lunghezza="300" next="2"/>
+		</sezione>
+		<sezione>
+			<tratta id ="2" v_max="100" lunghezza="3000" next="Tassignano-Capannori"/>
+		</sezione>
+
+		<sezione>
+			<tratta id="3" v_max="100" lunghezza="2000" next="4"/>
+		</sezione>
+		<sezione>
+			<tratta id="4" v_max="100" lunghezza="2000" next="Porcari"/>
+		</sezione>
+
+		<sezione>
+			<tratta id="5" v_max="100" lunghezza="2000" next="6"/>
+		</sezione>
+		<sezione>
+			<tratta id="6" v_max="110" lunghezza="2000" next="Altopascio"/>
+		</sezione>
+		<sezione>
+			<tratta id ="7" v_max="120" lunghezza="2000" next="8"/>
+		</sezione>
+		<sezione>
+			<tratta id ="8" v_max="110" lunghezza="3000" next="Montecarlo-S.Salvatore"/>
+		</sezione>
+
+		<sezione>
+			<tratta id="9" v_max="100" lunghezza="2500" next="10"/>
+		</sezione>
+		<sezione>
+			<tratta id="10" v_max="100" lunghezza="2500" next="11"/>
+		</sezione>
+		<sezione>
+			<tratta id="11" v_max="120" lunghezza="2500" next="Pescia"/>
+		</sezione>
+
+		<sezione>
+			<tratta id="12" v_max="100" lunghezza="3000" next="Borgo a Buggiano"/>
+		</sezione>
+		<sezione>
+			<tratta id="13" v_max="100" lunghezza="3000" next="Montecatini Centro"/>
+		</sezione>
+		<sezione>
+			<tratta id="13a" v_max="100" lunghezza="800" next="Montecatini Terme"/>
+		</sezione>
+		<sezione>
+			<tratta id="14" v_max="90" lunghezza="3000" next="15"/>
+		</sezione>
+		<sezione>
+			<tratta id="15" v_max="100" lunghezza="3000" next="16"/>
+		</sezione>		
+		<sezione>
+			<tratta id ="16" v_max="120" lunghezza="3000" next="Serravalle Pistoiese"/>
+		</sezione>
+		<sezione>
+			<tratta id ="17" v_max="100" lunghezza="2500" next="18"/>
+		</sezione>
+
+		<sezione>
+			<tratta id="18" v_max="90" lunghezza="3000" next="Pistoia"/>
+		</sezione>
+		<sezione>
+			<tratta id ="19" v_max="110" lunghezza="3000" next="20"/>
+		</sezione>
+		<sezione>
+			<tratta id ="20" v_max="110" lunghezza="2500" next="21"/>
+		</sezione>
+
+		<sezione>
+			<tratta id="21" v_max="100" lunghezza="3000" next="Montale-Agliana"/>
+		</sezione>
+		<sezione>
+			<tratta id="22" v_max="110" lunghezza="3000" next="23"/>
+		</sezione>
+		<sezione>
+			<tratta id="23" v_max="90" lunghezza="3000" next="Prato Borgonuovo"/>
+		</sezione>
+		<sezione>
+			<tratta id="24" v_max="100" lunghezza="2000" next="25"/>
+		</sezione>
+		<sezione>
+			<tratta id="25" v_max="80" lunghezza="2000" next="Prato P.ta Serraglio"/>
+		</sezione>
+		<sezione>
+			<tratta id="26a" v_max="80" lunghezza="800" next="c1"/>
+		</sezione>
+		<sezione>
+			<tratta id="26" v_max="120" lunghezza="800" next="Prato Centrale"/>
+		</sezione>
+		<sezione>
+			<tratta id="27" v_max="100" lunghezza="2000" next="28"/>
+		</sezione>
+		<sezione>
+			<tratta id="28" v_max="100" lunghezza="2000" next="Calenzano"/>
+		</sezione>
+		<sezione>
+			<tratta id="29" v_max="130" lunghezza="2000" next="Pratignone"/>
+		</sezione>
+		<sezione>
+			<tratta id="30" v_max="130" lunghezza="1000" next="Il Neto"/>
+		</sezione>
+		<sezione>
+			<tratta id="31" v_max="110" lunghezza="1000" next="Sesto Fiorentino"/>
+		</sezione>
+		<sezione>
+			<tratta id="32" v_max="100" lunghezza="2000" next="Zambra"/>
+		</sezione>
+		<sezione>
+			<tratta id="33" v_max="130" lunghezza="1500" next="Firenze Castello"/>
+		</sezione>
+		<sezione>
+			<tratta id="34" v_max="110" lunghezza="1500" next="Firenze Rifredi"/>
+		</sezione>
+		<sezione>
+			<tratta id="1a" v_max="80" lunghezza="3000" next="Firenze S.M.Novella"/>
+		</sezione>
+		<sezione>
+			<tratta id="1b" v_max="80" lunghezza="1000" next="Firenze Statuto"/>
+		</sezione>
+		<sezione>
+			<tratta id="2b" v_max="70" lunghezza="1000" next="Firenze C. di Marte"/>
+		</sezione>
+		
+		<sezione>
+			<scambio id ="s1" next_dv="1b" next_ct ="1a"/>
+		</sezione>
+
+
+		<sezione>
+			<cambio id="c1" change_name="46" change_next="Prato Centrale" next_cont="26" />
+		</sezione>
+
+		<sezione>
+			<stazione nome="Lucca" binari="5" next="1" tempo_fermata="00:03:00"/>
+		</sezione>
+
+		<sezione>
+			<stazione nome="Tassignano-Capannori" binari="2" next="3" tempo_fermata="00:01:30"/>
+		</sezione>
+
+		<sezione>
+			<stazione nome="Porcari" binari="2" next="5" tempo_fermata="00:02:00"/>
+		</sezione>
+
+		<sezione>
+			<stazione nome="Altopascio" binari="3" next="7" tempo_fermata="00:02:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Montecarlo-S.Salvatore" binari="2" next="9" tempo_fermata="00:01:40"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Pescia" binari="3" next="12" tempo_fermata="00:02:10"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Borgo a Buggiano" binari="2" next="13" tempo_fermata="00:02:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Montecatini Centro" binari="4" next="13a" tempo_fermata="00:02:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Montecatini Terme" binari="4" next="14" tempo_fermata="00:01:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Serravalle Pistoiese" binari="2" next="17" tempo_fermata="00:01:40"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Pistoia" binari="5" next="19" tempo_fermata="00:03:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Montale-Agliana" binari="2" next="22" tempo_fermata="00:02:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Prato Borgonuovo" binari="2" next="24" tempo_fermata="00:01:40"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Prato P.ta Serraglio" binari="3" next="26a" tempo_fermata="00:02:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Prato Centrale" binari="6" next="27" tempo_fermata="00:03:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Calenzano" binari="2" next="29" tempo_fermata="00:02:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Pratignone" binari="2" next="30" tempo_fermata="00:01:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Il Neto" binari="3" next="31" tempo_fermata="00:02:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Sesto Fiorentino" binari="4" next="32" tempo_fermata="00:02:50"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Zambra" binari="2" next="33" tempo_fermata="00:02:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Firenze Castello" binari="6" next="34" tempo_fermata="00:03:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Firenze Rifredi" binari="6" next="s1" tempo_fermata="00:03:00"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Firenze Statuto" binari="2" next="2b" tempo_fermata="00:01:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Firenze C. di Marte" binari="2" next="-1" tempo_fermata="00:01:30"/>
+		</sezione>
+		<sezione>
+			<stazione nome="Firenze S.M.Novella" binari="12" next="-1" tempo_fermata="00:05:00"/>
+		</sezione>
+
+	</linea>
+
+	
+	<linea nome="46">
+		<sezione>
+			<tratta id ="1" v_max="80" lunghezza="2500" next="2"/>
+		</sezione>
+		<sezione>
+			<tratta id ="2" v_max="100" lunghezza="2500" next="3"/>
+		</sezione>
+		<sezione>
+			<tratta id ="3" v_max="80" lunghezza="2000" next="Bologna S. Ruffillo"/>
+		</sezione>
+		<sezione>
+			<tratta id ="4" v_max="120" lunghezza="3000" next="Rastignano"/>
+		</sezione>
+		<sezione>
+			<tratta id ="5" v_max="120" lunghezza="2500" next="6"/>
+		</sezione>
+		<sezione>
+			<tratta id ="6" v_max="110" lunghezza="2500" next="Musiano-Pian di M."/>
+		</sezione>
+		<sezione>
+			<tratta id ="7" v_max="130" lunghezza="3000" next="Pianoro"/>
+		</sezione>
+		<sezione>
+			<tratta id ="8" v_max="100" lunghezza="3000" next="9"/>
+		</sezione>
+		<sezione>
+			<tratta id ="9" v_max="80" lunghezza="3000" next="10"/>
+		</sezione>
+		<sezione>
+			<tratta id ="10" v_max="90" lunghezza="3000" next="Monzuno-Vado"/>
+		</sezione>
+		<sezione>
+			<tratta id ="11" v_max="100" lunghezza="2000" next="12"/>
+		</sezione>
+		<sezione>
+			<tratta id ="12" v_max="100" lunghezza="2000" next="13"/>
+		</sezione>
+		<sezione>
+			<tratta id ="13" v_max="80" lunghezza="2000" next="14"/>
+		</sezione>
+		<sezione>
+			<tratta id ="14" v_max="110" lunghezza="2000" next="15"/>
+		</sezione>
+		<sezione>
+			<tratta id ="15" v_max="110" lunghezza="2000" next="Grizzana"/>
+		</sezione>
+		<sezione>
+			<tratta id ="16" v_max="90" lunghezza="2500" next="17"/>
+		</sezione>
+		<sezione>
+			<tratta id ="17" v_max="90" lunghezza="2500" next="S.Benedetto S.C.P."/>
+		</sezione>
+		<sezione>
+			<tratta id ="18" v_max="90" lunghezza="3000" next="19"/>
+		</sezione>
+		<sezione>
+			<tratta id ="19" v_max="80" lunghezza="3000" next="20"/>
+		</sezione>
+		<sezione>
+			<tratta id ="20" v_max="90" lunghezza="2500" next="21"/>
+		</sezione>
+		<sezione>
+			<tratta id ="21" v_max="110" lunghezza="2500" next="22"/>
+		</sezione>
+		<sezione>
+			<tratta id ="22" v_max="90" lunghezza="3000" next="23"/>
+		</sezione>
+		<sezione>
+			<tratta id ="23" v_max="120" lunghezza="3000" next="24"/>
+		</sezione>
+		<sezione>
+			<tratta id ="24" v_max="120" lunghezza="3000" next="Vernio"/>
+		</sezione>
+		<sezione>
+			<tratta id ="25" v_max="90" lunghezza="2000" next="26"/>
+		</sezione>
+		<sezione>
+			<tratta id ="26" v_max="80" lunghezza="3000" next="27"/>
+		</sezione>
+		<sezione>
+			<tratta id ="27" v_max="90" lunghezza="3000" next="28"/>
+		</sezione>
+		<sezione>
+			<tratta id ="28" v_max="90" lunghezza="2000" next="Vaiano"/>
+		</sezione>
+		<sezione>
+			<tratta id ="29" v_max="90" lunghezza="3000" next="30"/>
+		</sezione>
+		<sezione>
+			<tratta id ="30" v_max="90" lunghezza="2000" next="31"/>
+		</sezione>
+		<sezione>
+			<tratta id ="31" v_max="80" lunghezza="2000" next="32"/>
+		</sezione>
+		<sezione>
+			<tratta id ="32" v_max="70" lunghezza="3000" next="c1"/>
+		</sezione>
+
+		<sezione>
+			<cambio id="c1" change_name="256" change_next="26" next_cont="Prato Centrale" />
+		</sezione>
+		<sezione>
+			<stazione nome="Bologna Centrale" binari="14" next="1" tempo_fermata="00:04:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Bologna S. Ruffillo" binari="1" next="4" tempo_fermata="00:03:30"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Rastignano" binari="1" next="5" tempo_fermata="00:03:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Musiano-Pian di M." binari="1" next="7" tempo_fermata="00:02:30"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Pianoro" binari="1" next="8" tempo_fermata="00:01:30"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Monzuno-Vado" binari="1" next="11" tempo_fermata="00:02:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Grizzana" binari="1" next="16" tempo_fermata="00:02:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="S.Benedetto S.C.P." binari="1" next="18" tempo_fermata="00:02:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Vernio" binari="1" next="25" tempo_fermata="00:02:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Vaiano" binari="1" next="29" tempo_fermata="00:02:00"/>
+		</sezione>
+
+
+		<sezione>
+			<stazione nome="Prato Centrale" binari="6" next="-1" tempo_fermata="00:03:00"/>
+		</sezione>
+
+
+	</linea>
+
+
+	<treno nome="R11521" v_max="220" lunghezza="250">
+	
+		<itinerario>
+
+			<formazione linea="46" sezione="Bologna Centrale" ora="06:45:00"/>
+
+			<arrivo linea="256" stazione="Firenze S.M.Novella" ora="08:24:00"/>
+			
+			<switch id="s1" linea="256" stato="ct" />
+
+			<cambio id="c1" stato="1" />
+		</itinerario>
+
+		<orario stazione="Bologna S. Ruffillo" ora_arrivo="06:51:30" ora_partenza="06:53:00"/>
+		<orario stazione="Rastignano" ora_arrivo="06:56:00" ora_partenza="06:57:00"/>
+		<orario stazione="Musiano-Pian di M." ora_arrivo="07:00:00" ora_partenza="07:02:00"/>
+		<orario stazione="Pianoro" ora_arrivo="07:03:00" ora_partenza="07:05:00"/>
+		<orario stazione="Monzuno-Vado" ora_arrivo="07:11:00" ora_partenza="07:12:00"/>
+		<orario stazione="Grizzana" ora_arrivo="07:21:00" ora_partenza="07:22:00"/>
+		<orario stazione="San Benedetto S.C.P." ora_arrivo="07:24:00" ora_partenza="07:26:00"/>
+		<orario stazione="Vernio" ora_arrivo="07:36:00" ora_partenza="07:37:00"/>
+		<orario stazione="Vaiano" ora_arrivo="07:44:00" ora_partenza="07:45:00"/>
+		<orario stazione="Prato Centrale" ora_arrivo="07:55:00" ora_partenza="07:58:00"/>
+		<orario stazione="Il Neto" ora_arrivo="08:02:00" ora_partenza="08:03:00"/>
+		<orario stazione="Sesto Fiorentino" ora_arrivo="08:04:30" ora_partenza="08:06:00"/>
+		<orario stazione="Zambra" ora_arrivo="08:08:00" ora_partenza="08:09:00"/>
+		<orario stazione="Firenze Castello" ora_arrivo="08:11:00" ora_partenza="08:12:00"/>
+		<orario stazione="Firenze Rifredi" ora_arrivo="08:15:30" ora_partenza="08:17:00"/>
+	</treno>
+
+	<treno nome="R3027" v_max="180" lunghezza="200">
+	
+		<itinerario>
+
+			<formazione linea="256" sezione="Lucca" ora="06:56:00"/>
+
+			<arrivo linea="256" stazione="Firenze S.M.Novella" ora="08:33:00"/>
+			
+			<switch id="s1" linea="256" stato="ct" />
+
+			<cambio id="c1" stato="0" />
+		</itinerario>
+
+		<orario stazione="Tassignano-Capannori" ora_arrivo="07:00:00" ora_partenza="07:01:00"/>
+		<orario stazione="Porcari" ora_arrivo="07:05:00" ora_partenza="07:06:00"/>
+		<orario stazione="Altopascio" ora_arrivo="07:09:30" ora_partenza="07:11:00"/>
+		<orario stazione="Montecarlo-S.Salvatore" ora_arrivo="07:15:00" ora_partenza="07:16:00"/>
+		<orario stazione="Pescia" ora_arrivo="07:22:00" ora_partenza="07:24:00"/>
+		<orario stazione="Borgo a Buggiano" ora_arrivo="07:27:00" ora_partenza="07:28:00"/>
+		<orario stazione="Montecatini Centro" ora_arrivo="07:30:00" ora_partenza="07:32:00"/>
+		<orario stazione="Montecatini Terme" ora_arrivo="07:34:00" ora_partenza="07:35:00"/>
+		<orario stazione="Pistoia" ora_arrivo="07:42:00" ora_partenza="07:44:00"/>
+		<orario stazione="Montale-Agliana" ora_arrivo="07:54:30" ora_partenza="07:56:00"/>
+		<orario stazione="Prato P.ta Serraglio" ora_arrivo="08:02:00" ora_partenza="08:03:00"/>
+		<orario stazione="Prato Centrale" ora_arrivo="08:05:00" ora_partenza="08:07:00"/>
+		<orario stazione="Il Neto" ora_arrivo="08:13:00" ora_partenza="08:14:00"/>
+		<orario stazione="Sesto Fiorentino" ora_arrivo="08:16:00" ora_partenza="08:17:00"/>
+		<orario stazione="Firenze Rifredi" ora_arrivo="08:25:00" ora_partenza="08:27:00"/>
+
+	</treno>
+
+	<treno nome="R6609" v_max="150" lunghezza="160">
+	
+		<itinerario>
+
+			<formazione linea="256" sezione="Pistoia" ora="08:00:00"/>
+
+			<arrivo linea="256" stazione="Firenze C. di Marte" ora="09:00:00"/>
+			
+			<switch id="s1" linea="256" stato="dv" />
+
+			<cambio id="c1" stato="0" />
+		</itinerario>
+
+		<orario stazione="Montale-Agliana" ora_arrivo="08:05:30" ora_partenza="08:07:00"/>
+		<orario stazione="Prato Borgonuovo" ora_arrivo="08:10:30" ora_partenza="08:12:00"/>
+		<orario stazione="Prato P.ta Serraglio" ora_arrivo="08:16:00" ora_partenza="08:17:00"/>
+		<orario stazione="Prato Centrale" ora_arrivo="08:19:00" ora_partenza="08:21:00"/>
+		<orario stazione="Il Neto" ora_arrivo="08:30:00" ora_partenza="08:31:00"/>
+		<orario stazione="Sesto Fiorentino" ora_arrivo="08:33:30" ora_partenza="08:35:00"/>
+		<orario stazione="Firenze Castello" ora_arrivo="08:41:30" ora_partenza="08:43:00"/>
+		<orario stazione="Firenze Rifredi" ora_arrivo="08:47:00" ora_partenza="08:49:00"/>
+		<orario stazione="Firenze Statuto" ora_arrivo="08:51:30" ora_partenza="08:53:00"/>
+	</treno>
+
+
+
+</rete>
+	
+
+
+
+
+
+
+
+
+
+
+
+

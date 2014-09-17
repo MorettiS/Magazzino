@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<!--- <test pattern="SECAM" /><test pattern="NTSC" /> -->
+<impianto>
+	<handler>
+		<agv nome="AGV1" vel_max="30" bat_lev="100" pos="home1"/>
+ 		<agv nome="AGV2" vel_max="30" bat_lev="100" pos="home2"/>
+<!--- 		<agv nome="AGV3" vel_max="30" bat_lev="100" pos="home3"/>-->
+		<producer nome="Lam1" to="P1"  rate="1800" sigma="50"/>
+		<producer nome="Lam2" to="P2"  rate="900"  sigma="50"/>
+<!--		<consumer nome="CP1" from="C1" rate="600" sigma="50"/>
+		<consumer nome="CP2" from="C2" rate="600" sigma="50"/>-->
+		<consumer nome="CP3" from="C3" rate="600" sigma="50"/>
+	</handler>
+	<layout>
+		<scarico nome="C3" size="100" next="Rc3-"></scarico>
+		<carico nome="P1" to ="C3" size="100" next="Rp1-"></carico>
+		<carico nome="P2" to ="C3" size="100" next="Rp2-"></carico>
+		<incrocio nome="I1" destmap="P1=Rp1+,C2=R1-,C3=R1-,C1=R2+,P2=R2+,home1=home1,home2=home2,home3=home3"></incrocio>
+		<tratto nome="Rp1" lunghezza="10" vmax="15" next_p="P1" next_m="I1"/>
+		<tratto nome="R1" lunghezza="10" vmax="30" next_p="Cv1+" next_m="I1"/>
+		<tratto nome="Cv1" lunghezza="25" vmax="20" next_p="R2+" next_m="R1-"/>
+		<tratto nome="R2" lunghezza="300" vmax="30" next_p="Cv2+" next_m="Cv1-"/>
+		<tratto nome="Cv2" lunghezza="25" vmax="20" next_p="Rc3+" next_m="R2-"/>
+		<tratto nome="Rc3" lunghezza="40" vmax="30" next_p="C3" next_m="Cv2-"/>
+		<tratto nome="Rp2" lunghezza="10" vmax="20" next_p="Cv3+" next_m="P2"/>
+		<tratto nome="Cv3" lunghezza="10" vmax="15" next_p="Rp2+" next_m="R3-"/>
+		<tratto nome="R3" lunghezza="25" vmax="20" next_p="I1" next_m="Cv3-"/>
+
+
+		<park nome="home1" next="I1"></park>
+		<park nome="home2" next="I1"></park>
+		<park nome="home3" next="I1"></park>
+	</layout>
+</impianto>

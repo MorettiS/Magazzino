@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------
+# distribuzione dei valori  in gaussina 
+# questo per stabilire il valore del s in funzione della variazioane del tempo ciclo 
+# dei vari componenti dell'impianto
+#
+#
+#
+#
+#                68,3% = P{ µ -s      < X <  µ +s}
+#                95,0% = P{ µ - 1,96s < X <  µ +1,96s}
+#                95,5% = P{ µ - 2s    < X <  µ +2s}
+#                99,0% = P{ µ - 2,58s < X <  µ +2,58s}
+#                99,7% = P{ µ - 3s    < X <  µ + 3s }
+#-----------------------------------------------------------------------------

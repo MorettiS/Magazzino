@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!--- <test pattern="SECAM" /><test pattern="NTSC" /> -->
+<impianto>
+	<handler>
+		<agv nome="AGV1" vel_max="30" bat_lev="100" pos="home1"/>
+ 		<agv nome="AGV2" vel_max="30" bat_lev="100" pos="home2"/>
+<!--- 		<agv nome="AGV3" vel_max="30" bat_lev="100" pos="home3"/>-->
+		<producer nome="Lam1" to="P1"  rate="1800" sigma="50"/>
+		<producer nome="Lam2" to="P2"  rate="900"  sigma="50"/>
+<!--		<consumer nome="CP1" from="C1" rate="600" sigma="50"/>
+		<consumer nome="CP2" from="C2" rate="600" sigma="50"/>-->
+		<consumer nome="CP3" from="C3" rate="600" sigma="50"/>
+	</handler>
+	<layout>
+		<scarico nome="C1" size="1" next="Rc1-"></scarico>
+		<scarico nome="C2" size="1" next="Rc2-"></scarico>
+		<scarico nome="C3" size="1" next="Rc3-"></scarico>
+		<carico nome="P1" to ="C3" size="1" next="Rp1-"></carico>
+		<carico nome="P2" to ="C3" size="1" next="Rp2-"></carico>
+		<incrocio nome="I1" destmap="P1=Rp1+,C2=R1-,C3=R1-,C1=R2+,P2=R2+,home1=home1,home2=home2,home3=home3"></incrocio>
+		<incrocio nome="I2" destmap="P2=Rp2+,C1=R3+,P1=R2-,C2=R2-,C3=R2-,home1=R2-,home2=R2-,home3=R2-"></incrocio>
+		<incrocio nome="I3" destmap="P2=R1+,C1=R1+,P1=R1+,C2=Rc2+,C3=Rc3+,home1=I1,home2=R1+,home3=R1+"></incrocio>
+		<tratto nome="R1" lunghezza="200" vmax="30" next_p="I1" next_m="I3"/>
+		<tratto nome="R2" lunghezza="50" vmax="30" next_p="I2" next_m="I1"></tratto>
+		<tratto nome="R3" lunghezza="200" vmax="30" next_p="Rc1+" next_m="I2"></tratto>
+		<tratto nome="Rc1" lunghezza="20" vmax="10" next_p="C1" next_m="R3-"></tratto>
+		<tratto nome="Rp2" lunghezza="50" vmax="10" next_p="P2" next_m="I2"></tratto>
+		<tratto nome="Rp1" lunghezza="20" vmax="10" next_p="P1" next_m="I1"></tratto>
+		<tratto nome="Rc2" lunghezza="50" vmax="10" next_p="C2" next_m="I3"></tratto>
+		<tratto nome="Rc3" lunghezza="150" vmax="30" next_p="C3" next_m="I3"></tratto>
+		<park nome="home1" next="I1"></park>
+		<park nome="home2" next="I1"></park>
+		<park nome="home3" next="I1"></park>
+	</layout>
+</impianto>

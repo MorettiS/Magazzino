@@ -1,0 +1,258 @@
+                                               VIAGGIO
+
+ ---------------------------------------------------------------------------------------------------------------
+
+  0-06:45:00  Treno R11521 in linea 46 in partenza dalla stazione di Bologna Centrale 
+ffss Bologna Centrale
+  0-06:49:00  Treno R11521 esce dalla stazione Bologna Centrale
+  0-06:49:00  Treno R11521 in linea 46 entrato nella tratta 1 per 112 secondi
+  0-06:50:52  Treno R11521 in linea 46 entrato nella tratta 2 per 90 secondi
+  0-06:52:22  Treno R11521 in linea 46 entrato nella tratta 3 per 90 secondi
+ffss Bologna S. Ruffillo
+  0-06:53:52  Treno R11521 entrato in stazione Bologna S. Ruffillo
+  0-06:56:00  Treno R3027 in linea 256 in partenza dalla stazione di Lucca 
+ffss Lucca
+  0-06:57:22  Treno R11521 esce dalla stazione Bologna S. Ruffillo
+  0-06:57:22  Treno R11521 in linea 46 entrato nella tratta 4 per 90 secondi
+ffss Rastignano
+  0-06:58:52  Treno R11521 entrato in stazione Rastignano
+  0-06:59:00  Treno R3027 esce dalla stazione Lucca
+  0-06:59:00  Treno R3027 in linea 256 entrato nella tratta 1 per 13 secondi
+  0-06:59:13  Treno R3027 in linea 256 entrato nella tratta 2 per 108 secondi
+ffss Tassignano-Capannori
+  0-07:01:01  Treno R3027 entrato in stazione Tassignano-Capannori
+  0-07:01:52  Treno R11521 esce dalla stazione Rastignano
+  0-07:01:52  Treno R11521 in linea 46 entrato nella tratta 5 per 75 secondi
+  0-07:02:31  Treno R3027 esce dalla stazione Tassignano-Capannori
+  0-07:02:31  Treno R3027 in linea 256 entrato nella tratta 3 per 72 secondi
+  0-07:03:07  Treno R11521 in linea 46 entrato nella tratta 6 per 81 secondi
+  0-07:03:43  Treno R3027 in linea 256 entrato nella tratta 4 per 72 secondi
+ffss Musiano-Pian di M.
+  0-07:04:28  Treno R11521 entrato in stazione Musiano-Pian di M.
+ffss Porcari
+  0-07:04:55  Treno R3027 entrato in stazione Porcari
+  0-07:06:55  Treno R3027 esce dalla stazione Porcari
+  0-07:06:55  Treno R3027 in linea 256 entrato nella tratta 5 per 72 secondi
+  0-07:06:58  Treno R11521 esce dalla stazione Musiano-Pian di M.
+  0-07:06:58  Treno R11521 in linea 46 entrato nella tratta 7 per 83 secondi
+  0-07:08:07  Treno R3027 in linea 256 entrato nella tratta 6 per 65 secondi
+ffss Pianoro
+  0-07:08:21  Treno R11521 entrato in stazione Pianoro
+ffss Altopascio
+  0-07:09:12  Treno R3027 entrato in stazione Altopascio
+  0-07:09:51  Treno R11521 esce dalla stazione Pianoro
+  0-07:09:51  Treno R11521 in linea 46 entrato nella tratta 8 per 108 secondi
+  0-07:11:12  Treno R3027 esce dalla stazione Altopascio
+  0-07:11:12  Treno R3027 in linea 256 entrato nella tratta 7 per 60 secondi
+  0-07:11:39  Treno R11521 in linea 46 entrato nella tratta 9 per 135 secondi
+  0-07:12:12  Treno R3027 in linea 256 entrato nella tratta 8 per 98 secondi
+ffss Montecarlo-S.Salvatore
+  0-07:13:50  Treno R3027 entrato in stazione Montecarlo-S.Salvatore
+  0-07:13:54  Treno R11521 in linea 46 entrato nella tratta 10 per 120 secondi
+ffss Monzuno-Vado
+  0-07:15:54  Treno R11521 entrato in stazione Monzuno-Vado
+  0-07:16:00  Treno R3027 esce dalla stazione Montecarlo-S.Salvatore
+  0-07:16:00  Treno R3027 in linea 256 entrato nella tratta 9 per 90 secondi
+  0-07:17:30  Treno R3027 in linea 256 entrato nella tratta 10 per 90 secondi
+  0-07:17:54  Treno R11521 esce dalla stazione Monzuno-Vado
+  0-07:17:54  Treno R11521 in linea 46 entrato nella tratta 11 per 72 secondi
+  0-07:19:00  Treno R3027 in linea 256 entrato nella tratta 11 per 75 secondi
+  0-07:19:06  Treno R11521 in linea 46 entrato nella tratta 12 per 72 secondi
+ffss Pescia
+  0-07:20:15  Treno R3027 entrato in stazione Pescia
+  0-07:20:18  Treno R11521 in linea 46 entrato nella tratta 13 per 90 secondi
+  0-07:21:48  Treno R11521 in linea 46 entrato nella tratta 14 per 65 secondi
+  0-07:22:53  Treno R11521 in linea 46 entrato nella tratta 15 per 65 secondi
+ffss Grizzana
+  0-07:23:58  Treno R11521 entrato in stazione Grizzana
+  0-07:24:00  Treno R3027 esce dalla stazione Pescia
+  0-07:24:00  Treno R3027 in linea 256 entrato nella tratta 12 per 108 secondi
+ffss Borgo a Buggiano
+  0-07:25:48  Treno R3027 entrato in stazione Borgo a Buggiano
+  0-07:25:58  Treno R11521 esce dalla stazione Grizzana
+  0-07:25:58  Treno R11521 in linea 46 entrato nella tratta 16 per 100 secondi
+  0-07:27:38  Treno R11521 in linea 46 entrato nella tratta 17 per 100 secondi
+  0-07:28:00  Treno R3027 esce dalla stazione Borgo a Buggiano
+  0-07:28:00  Treno R3027 in linea 256 entrato nella tratta 13 per 108 secondi
+ffss S.Benedetto S.C.P.
+  0-07:29:18  Treno R11521 in linea 46 entrato nella tratta 18 per 120 secondi
+ffss Montecatini Centro
+  0-07:29:48  Treno R3027 entrato in stazione Montecatini Centro
+  0-07:31:18  Treno R11521 in linea 46 entrato nella tratta 19 per 135 secondi
+  0-07:32:00  Treno R3027 esce dalla stazione Montecatini Centro
+  0-07:32:00  Treno R3027 in linea 256 entrato nella tratta 13a per 28 secondi
+ffss Montecatini Terme
+  0-07:32:28  Treno R3027 entrato in stazione Montecatini Terme
+  0-07:33:33  Treno R11521 in linea 46 entrato nella tratta 20 per 100 secondi
+  0-07:35:00  Treno R3027 esce dalla stazione Montecatini Terme
+  0-07:35:00  Treno R3027 in linea 256 entrato nella tratta 14 per 120 secondi
+  0-07:35:13  Treno R11521 in linea 46 entrato nella tratta 21 per 81 secondi
+  0-07:36:34  Treno R11521 in linea 46 entrato nella tratta 22 per 120 secondi
+  0-07:37:00  Treno R3027 in linea 256 entrato nella tratta 15 per 108 secondi
+  0-07:38:34  Treno R11521 in linea 46 entrato nella tratta 23 per 90 secondi
+  0-07:38:48  Treno R3027 in linea 256 entrato nella tratta 16 per 90 secondi
+  0-07:40:04  Treno R11521 in linea 46 entrato nella tratta 24 per 90 secondi
+ffss Serravalle Pistoiese
+  0-07:40:18  Treno R3027 in linea 256 entrato nella tratta 17 per 90 secondi
+ffss Vernio
+  0-07:41:34  Treno R11521 entrato in stazione Vernio
+  0-07:41:48  Treno R3027 in linea 256 entrato nella tratta 18 per 120 secondi
+  0-07:43:34  Treno R11521 esce dalla stazione Vernio
+  0-07:43:34  Treno R11521 in linea 46 entrato nella tratta 25 per 80 secondi
+ffss Pistoia
+  0-07:43:48  Treno R3027 entrato in stazione Pistoia
+  0-07:44:54  Treno R11521 in linea 46 entrato nella tratta 26 per 135 secondi
+  0-07:46:48  Treno R3027 esce dalla stazione Pistoia
+  0-07:46:48  Treno R3027 in linea 256 entrato nella tratta 19 per 98 secondi
+  0-07:47:09  Treno R11521 in linea 46 entrato nella tratta 27 per 120 secondi
+  0-07:48:26  Treno R3027 in linea 256 entrato nella tratta 20 per 81 secondi
+  0-07:49:09  Treno R11521 in linea 46 entrato nella tratta 28 per 80 secondi
+  0-07:49:47  Treno R3027 in linea 256 entrato nella tratta 21 per 108 secondi
+ffss Vaiano
+  0-07:50:29  Treno R11521 entrato in stazione Vaiano
+ffss Montale-Agliana
+  0-07:51:35  Treno R3027 entrato in stazione Montale-Agliana
+  0-07:52:29  Treno R11521 esce dalla stazione Vaiano
+  0-07:52:29  Treno R11521 in linea 46 entrato nella tratta 29 per 120 secondi
+  0-07:54:29  Treno R11521 in linea 46 entrato nella tratta 30 per 80 secondi
+  0-07:55:49  Treno R11521 in linea 46 entrato nella tratta 31 per 90 secondi
+  0-07:56:00  Treno R3027 esce dalla stazione Montale-Agliana
+  0-07:56:00  Treno R3027 in linea 256 entrato nella tratta 22 per 98 secondi
+  0-07:57:19  Treno R11521 in linea 46 entrato nella tratta 32 per 154 secondi
+  0-07:57:38  Treno R3027 in linea 256 entrato nella tratta 23 per 120 secondi
+ffss Prato Borgonuovo
+  0-07:59:38  Treno R3027 in linea 256 entrato nella tratta 24 per 72 secondi
+  0-07:59:53  Treno R11521 devia nella linea 256
+  0-07:59:53  Treno R11521 in linea 256 entrato nella tratta 26 per 24 secondi
+  0-08:00:00  Treno R6609 in linea 256 in partenza dalla stazione di Pistoia 
+ffss Pistoia
+ffss Prato Centrale
+  0-08:00:17  Treno R11521 entrato in stazione Prato Centrale
+  0-08:00:50  Treno R3027 in linea 256 entrato nella tratta 25 per 90 secondi
+ffss Prato P.ta Serraglio
+  0-08:02:20  Treno R3027 entrato in stazione Prato P.ta Serraglio
+  0-08:03:00  Treno R6609 esce dalla stazione Pistoia
+  0-08:03:00  Treno R6609 in linea 256 entrato nella tratta 19 per 98 secondi
+  0-08:03:47  Treno R11521 esce dalla stazione Prato Centrale
+  0-08:03:47  Treno R11521 in linea 256 entrato nella tratta 27 per 72 secondi
+  0-08:04:20  Treno R3027 esce dalla stazione Prato P.ta Serraglio
+  0-08:04:20  Treno R3027 in linea 256 entrato nella tratta 26a per 36 secondi
+  0-08:04:38  Treno R6609 in linea 256 entrato nella tratta 20 per 81 secondi
+  0-08:04:56  Treno R3027 in linea 256 entrato nella tratta 26 per 24 secondi
+  0-08:04:59  Treno R11521 in linea 256 entrato nella tratta 28 per 72 secondi
+ffss Prato Centrale
+  0-08:05:20  Treno R3027 entrato in stazione Prato Centrale
+  0-08:05:59  Treno R6609 in linea 256 entrato nella tratta 21 per 108 secondi
+ffss Calenzano
+  0-08:06:11  Treno R11521 in linea 256 entrato nella tratta 29 per 55 secondi
+ffss Pratignone
+  0-08:07:06  Treno R11521 in linea 256 entrato nella tratta 30 per 27 secondi
+ffss Il Neto
+  0-08:07:33  Treno R11521 entrato in stazione Il Neto
+ffss Montale-Agliana
+  0-08:07:47  Treno R6609 entrato in stazione Montale-Agliana
+  0-08:08:50  Treno R3027 esce dalla stazione Prato Centrale
+  0-08:08:50  Treno R3027 in linea 256 entrato nella tratta 27 per 72 secondi
+  0-08:09:47  Treno R6609 esce dalla stazione Montale-Agliana
+  0-08:09:47  Treno R6609 in linea 256 entrato nella tratta 22 per 98 secondi
+  0-08:10:02  Treno R3027 in linea 256 entrato nella tratta 28 per 72 secondi
+  0-08:10:03  Treno R11521 esce dalla stazione Il Neto
+  0-08:10:03  Treno R11521 in linea 256 entrato nella tratta 31 per 32 secondi
+ffss Sesto Fiorentino
+  0-08:10:35  Treno R11521 entrato in stazione Sesto Fiorentino
+ffss Calenzano
+  0-08:11:14  Treno R3027 in linea 256 entrato nella tratta 29 per 55 secondi
+  0-08:11:25  Treno R6609 in linea 256 entrato nella tratta 23 per 120 secondi
+ffss Pratignone
+  0-08:12:09  Treno R3027 in linea 256 entrato nella tratta 30 per 27 secondi
+ffss Il Neto
+  0-08:12:36  Treno R3027 entrato in stazione Il Neto
+  0-08:13:25  Treno R11521 esce dalla stazione Sesto Fiorentino
+  0-08:13:25  Treno R11521 in linea 256 entrato nella tratta 32 per 72 secondi
+ffss Prato Borgonuovo
+  0-08:13:25  Treno R6609 entrato in stazione Prato Borgonuovo
+ffss Zambra
+  0-08:14:37  Treno R11521 entrato in stazione Zambra
+  0-08:15:05  Treno R6609 esce dalla stazione Prato Borgonuovo
+  0-08:15:05  Treno R6609 in linea 256 entrato nella tratta 24 per 72 secondi
+  0-08:15:06  Treno R3027 esce dalla stazione Il Neto
+  0-08:15:06  Treno R3027 in linea 256 entrato nella tratta 31 per 32 secondi
+ffss Sesto Fiorentino
+  0-08:15:38  Treno R3027 entrato in stazione Sesto Fiorentino
+  0-08:16:17  Treno R6609 in linea 256 entrato nella tratta 25 per 90 secondi
+  0-08:17:07  Treno R11521 esce dalla stazione Zambra
+  0-08:17:07  Treno R11521 in linea 256 entrato nella tratta 33 per 41 secondi
+ffss Prato P.ta Serraglio
+  0-08:17:47  Treno R6609 entrato in stazione Prato P.ta Serraglio
+ffss Firenze Castello
+  0-08:17:48  Treno R11521 entrato in stazione Firenze Castello
+  0-08:18:28  Treno R3027 esce dalla stazione Sesto Fiorentino
+  0-08:18:28  Treno R3027 in linea 256 entrato nella tratta 32 per 72 secondi
+ffss Zambra
+  0-08:19:40  Treno R3027 in linea 256 entrato nella tratta 33 per 41 secondi
+  0-08:19:47  Treno R6609 esce dalla stazione Prato P.ta Serraglio
+  0-08:19:47  Treno R6609 in linea 256 entrato nella tratta 26a per 36 secondi
+ffss Firenze Castello
+  0-08:20:21  Treno R3027 in linea 256 entrato nella tratta 34 per 49 secondi
+  0-08:20:23  Treno R6609 in linea 256 entrato nella tratta 26 per 24 secondi
+ffss Prato Centrale
+  0-08:20:47  Treno R6609 entrato in stazione Prato Centrale
+  0-08:20:48  Treno R11521 esce dalla stazione Firenze Castello
+  0-08:20:48  Treno R11521 in linea 256 in attesa ingresso alla tratta 34, occupata dal treno R3027
+ffss Firenze Rifredi
+  0-08:21:10  Treno R3027 entrato in stazione Firenze Rifredi
+  0-08:21:10  Treno R11521 in linea 256 entrato nella tratta 34 per 49 secondi
+ffss Firenze Rifredi
+  0-08:21:59  Treno R11521 entrato in stazione Firenze Rifredi
+  0-08:24:17  Treno R6609 esce dalla stazione Prato Centrale
+  0-08:24:17  Treno R6609 in linea 256 entrato nella tratta 27 per 72 secondi
+  0-08:24:59  Treno R11521 esce dalla stazione Firenze Rifredi
+  0-08:24:59  Treno R11521 in linea 256 attraversa lo scambio s1 
+  0-08:24:59  Treno R11521 in linea 256 deviato nella tratta 1a 
+  0-08:24:59  Treno R11521 in linea 256 entrato nella tratta 1a per 135 secondi
+  0-08:25:29  Treno R6609 in linea 256 entrato nella tratta 28 per 72 secondi
+ffss Calenzano
+  0-08:26:41  Treno R6609 in linea 256 entrato nella tratta 29 per 55 secondi
+  0-08:27:00  Treno R3027 esce dalla stazione Firenze Rifredi
+  0-08:27:00  Treno R3027 in linea 256 attraversa lo scambio s1 
+  0-08:27:00  Treno R3027 in linea 256 deviato nella tratta 1a 
+  0-08:27:00  Treno R3027 in linea 256 in attesa ingresso alla tratta 1a, occupata dal treno R11521
+ffss Firenze S.M.Novella
+================================================================================
+  0-08:27:14  Treno R11521 Arrivato a destinazione 
+================================================================================
+  0-08:27:14  Treno R3027 in linea 256 entrato nella tratta 1a per 135 secondi
+ffss Pratignone
+  0-08:27:36  Treno R6609 in linea 256 entrato nella tratta 30 per 27 secondi
+ffss Il Neto
+  0-08:28:03  Treno R6609 entrato in stazione Il Neto
+ffss Firenze S.M.Novella
+================================================================================
+  0-08:29:29  Treno R3027 Arrivato a destinazione 
+================================================================================
+  0-08:31:00  Treno R6609 esce dalla stazione Il Neto
+  0-08:31:00  Treno R6609 in linea 256 entrato nella tratta 31 per 32 secondi
+ffss Sesto Fiorentino
+  0-08:31:32  Treno R6609 entrato in stazione Sesto Fiorentino
+  0-08:35:00  Treno R6609 esce dalla stazione Sesto Fiorentino
+  0-08:35:00  Treno R6609 in linea 256 entrato nella tratta 32 per 72 secondi
+ffss Zambra
+  0-08:36:12  Treno R6609 in linea 256 entrato nella tratta 33 per 41 secondi
+ffss Firenze Castello
+  0-08:36:53  Treno R6609 entrato in stazione Firenze Castello
+  0-08:43:00  Treno R6609 esce dalla stazione Firenze Castello
+  0-08:43:00  Treno R6609 in linea 256 entrato nella tratta 34 per 49 secondi
+ffss Firenze Rifredi
+  0-08:43:49  Treno R6609 entrato in stazione Firenze Rifredi
+  0-08:49:00  Treno R6609 esce dalla stazione Firenze Rifredi
+  0-08:49:00  Treno R6609 in linea 256 attraversa lo scambio s1 
+  0-08:49:00  Treno R6609 in linea 256 deviato nella tratta 1b 
+  0-08:49:00  Treno R6609 in linea 256 entrato nella tratta 1b per 45 secondi
+ffss Firenze Statuto
+  0-08:49:45  Treno R6609 entrato in stazione Firenze Statuto
+  0-08:53:00  Treno R6609 esce dalla stazione Firenze Statuto
+  0-08:53:00  Treno R6609 in linea 256 entrato nella tratta 2b per 51 secondi
+ffss Firenze C. di Marte
+================================================================================
+  0-08:53:51  Treno R6609 Arrivato a destinazione 
+================================================================================

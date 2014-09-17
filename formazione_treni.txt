@@ -1,0 +1,19 @@
+                      CREAZIONE E FORMAZIONE TRENI
+
+ -----------------------------------------------------------------------
+
+Creato Treno R11521  Lunghezza = 220 m  --  Velocita' Massima = 250 Km/h
+Formato Treno R11521 su sezione Bologna Centrale
+
+ -----------------------------------------------------------------------
+
+Creato Treno R3027  Lunghezza = 180 m  --  Velocita' Massima = 200 Km/h
+Formato Treno R3027 su sezione Lucca
+
+ -----------------------------------------------------------------------
+
+Creato Treno R6609  Lunghezza = 150 m  --  Velocita' Massima = 160 Km/h
+Formato Treno R6609 su sezione Pistoia
+
+ -----------------------------------------------------------------------
+
