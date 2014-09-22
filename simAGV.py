@@ -8,6 +8,43 @@ from SimPy.Simulation  import *
 from random import *
 from SimPy.SimGUI import *
 from xml.dom import minidom
+import math
+
+def intersezione_cerchi (r1,r2,x1,z1,x2,z2):
+	alfa1=-2*x1
+	beta1=-2*z1
+	gamma1=x1**2+z1**2-r1**2*x1
+	alfa2=-2*x2
+	beta2=-2*z2
+	gamma2=x2**2+z2**2-r2**2
+	
+	if (beta1-beta2):
+		k=(gamma2-gamma1)*(alfa2-alfa1)/(beta2-beta1)
+		a=(1+k**2)
+		b=(alfa2+k*beta2)
+		c=	gamma2
+		xp=(-b+math.sqrt(b**2-4*a*c))/(2*a)
+		xm=(-b-math.sqrt(b**2-4*a*c))/(2*a)
+		zp=(gamma1-gamma)*(alfa1-alfa2)*xp/(beta1-beta2)
+		zm=(gamma1-gamma)*(alfa1-alfa2)*xm/(beta1-beta2)
+		if (zp > zm):
+			return [xp,zp]
+		else:
+			return [xm,zm]
+	else:
+		xp=((x2**2-x1**2)+(r1**2-r2**2))/(2*(x2-x1))
+		b=-2*z1
+		c=-r1**2+(xp-x1)**2+z1**2
+		zp=(-b+math.sqrt(b**2-4*c))/2
+		zm=(-b-math.sqrt(b**2-4*c))/2
+		if (zp > zm):
+			return [xp,zp]
+		else:
+			return [xp,zm]
+		
+#-----------------------------------------------------------------			
+#-----------------------------------------------------------------			
+
 #-----------------------------------------------------------------			
 #class product (Lister):
 #
@@ -16,7 +53,9 @@ from xml.dom import minidom
 # Definzione di un Archivio di Prodotti
 # in questo caso Rotoli
 # identificazione e' fatta attraverso un ID identificativo 
-#-----------------------------------------------------------------			
+#-----------------------------------------------------------------
+	
+			
 class BaseDati():
 	def __init__(self):
 		self.archivio = dict()
@@ -553,11 +592,11 @@ def db_gen():
 #	id,spessore,larghezza,diametro,peso
 	db_rotoli.add("mario",1,1250,1050,15010)
 	db_rotoli.add("giovanni",1,1250,1300,18255)
-	res = db_rotoli.cerca("mar")
+	res = db_rotoli.cerca("mario")
 	if res <> 0 :
 		gui.writeConsole("id= %s  spessore = %d larghezza = %d diametro = %d peso = %d"%(res[0],res[1],res[2],res[3],res[4]))
 	else:
-		gui.writeConsole("%s Non Trovato"%("mar"))
+		gui.writeConsole("%s Non Trovato"%(id))
 		
 	res = db_rotoli.cerca("giovanni")
 	if res <> 0 :
@@ -565,6 +604,12 @@ def db_gen():
 	else:
 		gui.writeConsole("%s Non Trovato"%(id))
 	gui.writeConsole("DataBase Creato")
+	
+def  intersezione ():
+	
+	punti=intersezione_cerchi (15,15,20,10,30,10)
+	gui.writeConsole("x= %.2f z = %.2f"%(punti[0],punti[1]))
+	
 
 class MyGUI(SimGUI):
     def __init__(self,win,**par):
@@ -577,6 +622,8 @@ class MyGUI(SimGUI):
                              command=model,underline=0)
         self.run.add_command(label="Crea DataBase",
                              command=db_gen,underline=0)
+        self.run.add_command(label="Intersezione Circonferenze",
+                             command=intersezione,underline=0)
         self.params=Parameters(duration=28800,destinazione="C2",nrLaunchers=3)
       
 root=Tk()
