@@ -5,10 +5,31 @@ This is a very basic model, demonstrating the ease
 of interfacing to SimGUI.
 """
 from SimPy.Simulation  import *
-from random import *
+#from random import *
+import random
 from SimPy.SimGUI import *
 from xml.dom import minidom
 import math
+
+class template ():
+
+	def __init__ (self,larghezza,foro,dmedio):
+		self.larghezza=larghezza # misure in mm
+		self.foro=foro # misure in mm
+		self.dmedio=dmedio # misure in mm
+		self.sigma=300 # misure in mm
+#		self.ID=1000 # misure in mm
+		self.ID=0
+		
+		
+	def produci (self):
+#		gui.writeConsole("Prodotto id= %s "%(str(self.ID)))
+		d=random.gauss(self.dmedio,self.sigma)/100.0 #misura in dm
+		p=(3.14/4.0)*(d**2-(self.foro/100)**2)*(self.larghezza/100) * 7.85 # peso in kg  (peso specifico in kg/dm^3)
+#		coils.add(str(self.ID),0,self.larghezza,diametro,peso,False)
+#		self.ID=self.ID+1
+		self.ID=int(random.random()*150000)
+		return ([self.ID,self.larghezza,d*100,p,False])
 
 def intersezione_cerchi (r1,r2,x1,z1,x2,z2):
 	alfa1=-2*x1
@@ -44,32 +65,79 @@ def intersezione_cerchi (r1,r2,x1,z1,x2,z2):
 		
 #-----------------------------------------------------------------			
 #-----------------------------------------------------------------			
-
-#-----------------------------------------------------------------			
-#class product (Lister):
-#
-#	def __init__(self,n):
-#		self.product="coil"+str(n)
-# Definzione di un Archivio di Prodotti
-# in questo caso Rotoli
-# identificazione e' fatta attraverso un ID identificativo 
-#-----------------------------------------------------------------
+class magazzino ():
+# definisce il layout del magazzino
+# file = numero di file
+# box = numero di box per fila
+# org : misura di origine dell file org[0] e dei box[1]
+# passo : distanza tra le file passo[0] e tra i box passo[1]
+# Una cella e' rappresentata da uno stato di occupazione (True,False) ,
+# una quota di file e una quota di box
+#	
+	def __init__(self,file,box,org,passo,peso_max):
+		fila=[]
+		for i in range(1,file):
+			self.peso_max=peso_max
+			fila=[]
+			quota_f=org[0]+passo[0]*i
+			for j in range (1,box):
+				quota_b=org[1]+passo[1]*j
+				fila.append([False,quota_f,quota_b,self.peso_max,-1])	
+			self.me.append(fila)
 	
-			
+	def set_cella_occupata(fila,box,id):
+		m=self.me[fila][box]
+		m[0]=True
+		m[3]=id
+		self.me[fila][box]=m
+		
+	def set_cella_libera(fila,box):
+		m=self.me[fila][box]
+		m[0]=False
+		ret=m[3]
+		m[3]=-1
+		self.me[fila][box]=m
+		return (ret)
+
+	def get_fila (self,fila):
+		return (self.me[fila])
+		
+	def get_numero_file(self):
+		return (len(self.me[0]))
+# Scandisce tutto il magazzino e seleziona la cella 
+# per la quale la differenza diametro con quello accanto e' minore
+# restituisce numero fi fila e numero di box sotto forma di lista
+# [fila,box]	
+	def parcatura_per_diametro (self,diametro):
+		f=0;
+		for fila in self.me:
+			b=0
+			d_min=1000000
+			box_prec=[]
+			for box in fila:
+				if (not box[0]): #la cella e' libera
+					if (len(box_prec)):
+						d=coils.cerca(box_prec[3])["diametro"]
+						if ((abs(diametro-d)< d_min)):
+							cella=box
+				b=b+1
+			f=f+1
+			return([f,b])		
+		
 class BaseDati():
 	def __init__(self):
-		self.archivio = dict()
+		self.me = dict()
 		
-	def add(self,id,spessore,larghezza,diametro,peso):
-		if not(id in self.archivio):
-			self.archivio[id]=[id,spessore,larghezza,diametro,peso]
+	def add(self,id,spessore,larghezza,diametro,peso,verniciato):
+		if not(id in self.me):
+			self.me[id]={"diametro":diametro,"larghezza":larghezza,"peso":peso,"verniciato":verniciato,"fila":-1,"box":-1,"livello":-1,}
 			return True
 		else:
 			return False
 	
 	def cerca(self,id):
-		if (id in self.archivio):
-			return self.archivio[id]
+		if (id in self.me):
+			return self.me[id]
 		else:
 			return False
 	
@@ -108,6 +176,8 @@ class producer(Process):
 	def define_new_consumer (sef,consumer):
 		self.consumer=consumer
 		gui.writeConsole("Definita Nuovo Consumer % per  %s"% (self.consumer,self.id))
+		
+		
 	
 class consumer (Process):
 
@@ -590,19 +660,19 @@ def model():
 def db_gen():
 	db_rotoli = BaseDati()
 #	id,spessore,larghezza,diametro,peso
-	db_rotoli.add("mario",1,1250,1050,15010)
-	db_rotoli.add("giovanni",1,1250,1300,18255)
-	res = db_rotoli.cerca("mario")
-	if res <> 0 :
-		gui.writeConsole("id= %s  spessore = %d larghezza = %d diametro = %d peso = %d"%(res[0],res[1],res[2],res[3],res[4]))
-	else:
-		gui.writeConsole("%s Non Trovato"%(id))
-		
-	res = db_rotoli.cerca("giovanni")
-	if res <> 0 :
-		gui.writeConsole("id= %s  spessore = %d larghezza = %d diametro = %d peso = %d"%(res[0],res[1],res[2],res[3],res[4]))
-	else:
-		gui.writeConsole("%s Non Trovato"%(id))
+	rotolo=template (1000,600,1100)
+	for i in range(1,5000):
+		r=rotolo.produci()
+		if(not db_rotoli.cerca(r[0])):
+			db_rotoli.add(r[0],0,r[1],r[2],r[3],r[4])
+			res = db_rotoli.cerca(r[0])
+			if res <> 0 :
+				gui.writeConsole("id= %s   larghezza = %d diametro = %d peso = %d"%(r[0],res["larghezza"],res["diametro"],res["peso"]))
+			else:
+				gui.writeConsole("%s Non Trovato"%(id))
+		else:
+			gui.writeConsole("id= %s   Esiste "%(r[0]))
+			
 	gui.writeConsole("DataBase Creato")
 	
 def  intersezione ():
