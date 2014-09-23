@@ -30,39 +30,41 @@ class template ():
 #		self.ID=self.ID+1
 		self.ID=int(random.random()*150000)
 		return ([self.ID,self.larghezza,d*100,p,False])
+#-----------------------------------------------------------------			
+#-----------------------------------------------------------------			
+#-----------------------------------------------------------------			
+#-----------------------------------------------------------------			
 
 def intersezione_cerchi (r1,r2,x1,z1,x2,z2):
-	alfa1=-2*x1
-	beta1=-2*z1
-	gamma1=x1**2+z1**2-r1**2*x1
-	alfa2=-2*x2
-	beta2=-2*z2
-	gamma2=x2**2+z2**2-r2**2
+	if (math.sqrt((x2-x1)**2+(z2-z1)**2) > (r1+r2)):
+		#distanza fra i due centri superiore alla somma dei raggi delle circonferenze!
+		return [-1,-1]
+
+	alfa1=-2.0*x1
+	beta1=-2.0*z1
+	gamma1=1.0*(x1**2+z1**2-r1**2)
+	alfa2=-2.0*x2
+	beta2=-2.0*z2
+	gamma2=1.0*(x2**2+z2**2-r2**2)
+	#gui.writeConsole("DEBUG:\nalfa1 = %.2f\nbeta1 = %.2f\ngamma1 = %.2f\nalfa2 = %.2f\nbeta2 = %.2f\ngamma2 = %.2f\n" % (alfa1, beta1, gamma1, alfa2, beta2, gamma2))
 	
-	if (beta1-beta2):
-		k=(gamma2-gamma1)*(alfa2-alfa1)/(beta2-beta1)
-		a=(1+k**2)
-		b=(alfa2+k*beta2)
-		c=	gamma2
-		xp=(-b+math.sqrt(b**2-4*a*c))/(2*a)
-		xm=(-b-math.sqrt(b**2-4*a*c))/(2*a)
-		zp=(gamma1-gamma)*(alfa1-alfa2)*xp/(beta1-beta2)
-		zm=(gamma1-gamma)*(alfa1-alfa2)*xm/(beta1-beta2)
-		if (zp > zm):
-			return [xp,zp]
-		else:
-			return [xm,zm]
+	k1=(gamma2-gamma1)/(alfa1-alfa2) 
+	k2=(beta2-beta1)/(alfa1-alfa2)
+	delta=(2*k1*k2+alfa2*k2+beta2)**2-4*(k2**2+1)*(k1**2+alfa2*k1+gamma2)
+	
+	#gui.writeConsole("DEBUG: k1 = %.2f, k2 = %.2f, delta = %.2f" % (k1, k2, delta))
+	zp=((-2*k1*k2-alfa2*k2-beta2)+math.sqrt(delta))/(2*(k2**2+1))
+	zm=((-2*k1*k2-alfa2*k2-beta2)-math.sqrt(delta))/(2*(k2**2+1))
+	xp=k1+k2*zp
+	xm=k1+k2*zm
+	#gui.writeConsole("Pp=(%.2f,%.2f) Pm=(%.2f,%.2f)"%(xp,zp,xm,zm))
+
+	if (zp > zm):
+		return [xp,zp]
 	else:
-		xp=((x2**2-x1**2)+(r1**2-r2**2))/(2*(x2-x1))
-		b=-2*z1
-		c=-r1**2+(xp-x1)**2+z1**2
-		zp=(-b+math.sqrt(b**2-4*c))/2
-		zm=(-b-math.sqrt(b**2-4*c))/2
-		if (zp > zm):
-			return [xp,zp]
-		else:
-			return [xp,zm]
-		
+		return [xp,zm]
+
+	
 #-----------------------------------------------------------------			
 #-----------------------------------------------------------------			
 class magazzino ():
