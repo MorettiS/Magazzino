@@ -24,7 +24,9 @@ class template ():
 		
 	def produci (self):
 #		gui.writeConsole("Prodotto id= %s "%(str(self.ID)))
-		d=random.gauss(self.dmedio,self.sigma)/100.0 #misura in dm
+		d=0
+		while(d < self.foro):
+			d=random.gauss(self.dmedio,self.sigma)/100.0 #misura in dm
 		p=(3.14/4.0)*(d**2-(self.foro/100)**2)*(self.larghezza/100) * 7.85 # peso in kg  (peso specifico in kg/dm^3)
 #		coils.add(str(self.ID),0,self.larghezza,diametro,peso,False)
 #		self.ID=self.ID+1
