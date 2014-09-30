@@ -11,8 +11,44 @@ from SimPy.SimGUI import *
 from xml.dom import minidom
 import math
 
-class template ():
+import time
 
+#Moduli necessari per visualizzazione magazzino
+import os, pygame, sys
+from pygame.locals import *
+if not pygame.font: print 'Warning, fonts disabled'
+if not pygame.mixer: print 'Warning, sound disabled'
+
+
+def print_text(txt,x,y,size,colore=(0,0,255)):
+	#scrive testo che si sviluppa verso basso, dx rispetto all'origine (X,Y)
+	f = pygame.font.Font(None, size)
+	s = f.render(txt, 1, colore)
+	screen.blit(s,(x,y))
+
+	
+def print_xcentered_text(txt,x,y,size,colore=(0,0,255)):
+	#scrive testo centrato orizzontalmente rispetto all'origine (X,Y)
+	f = pygame.font.Font(None, size)
+	s = f.render(txt, 1, colore)
+	screen.blit(s,(x-pygame.Surface.get_width(s)/2,y))
+
+	
+def print_ycentered_text(txt,x,y,size,colore=(0,0,255)):
+	#scrive testo centrato verticalmente rispetto all'origine (X,Y)
+	f = pygame.font.Font(None, size)
+	s = f.render(txt, 1, colore)
+	screen.blit(s,(x,y-pygame.Surface.get_height(s)/2))
+
+	
+def print_xycentered_text(txt,x,y,size,colore=(0,0,255)):
+	#scrive testo centrato orizzontalmente e verticalmente rispetto all'origine (X,Y)
+	f = pygame.font.Font(None, size)
+	s = f.render(txt, 1, colore)
+	screen.blit(s,(x-pygame.Surface.get_width(s)/2,y-pygame.Surface.get_height(s)/2))
+
+	
+class template ():
 	def __init__ (self,larghezza,foro,dmedio):
 		self.larghezza=larghezza # misure in mm
 		self.foro=foro # misure in mm
@@ -20,12 +56,13 @@ class template ():
 		self.sigma=300 # misure in mm
 #		self.ID=1000 # misure in mm
 		self.ID=0
+		self.diam_min=self.foro*1.10
 		
 		
 	def produci (self):
 #		gui.writeConsole("Prodotto id= %s "%(str(self.ID)))
-		d=0
-		while(d < self.foro):
+		d=-100
+		while(d < self.diam_min/100):
 			d=random.gauss(self.dmedio,self.sigma)/100.0 #misura in dm
 		p=(3.14/4.0)*(d**2-(self.foro/100)**2)*(self.larghezza/100) * 7.85 # peso in kg  (peso specifico in kg/dm^3)
 #		coils.add(str(self.ID),0,self.larghezza,diametro,peso,False)
@@ -68,39 +105,97 @@ def intersezione_cerchi (r1,r2,x1,z1,x2,z2):
 
 	
 #-----------------------------------------------------------------			
-#-----------------------------------------------------------------			
+#-----------------------------------------------------------------
+
+			
 class magazzino ():
 # definisce il layout del magazzino
 # file = numero di file
 # box = numero di box per fila
-# org : misura di origine dell file org[0] e dei box[1]
+# org : misura di origine delle file org[0] e dei box org[1]
 # passo : distanza tra le file passo[0] e tra i box passo[1]
 # Una cella e' rappresentata da uno stato di occupazione (True,False) ,
 # una quota di file e una quota di box
-#	
-	def __init__(self,file,box,org,passo,peso_max):
-		fila=[]
-		for i in range(1,file):
+
+	def __init__(self,file,box,org,passo,peso_max,screen=None,background=None):
+		self.me=[]
+		self.screen=screen
+		self.background=background
+		self.n_file=file
+		self.n_box=box
+		self.origine=org
+		self.passo_celle=passo
+
+		for i in range(0,file):
 			self.peso_max=peso_max
 			fila=[]
 			quota_f=org[0]+passo[0]*i
-			for j in range (1,box):
+			for j in range (0,box):
 				quota_b=org[1]+passo[1]*j
 				fila.append([False,quota_f,quota_b,self.peso_max,-1])	
 			self.me.append(fila)
+		if (self.screen):	# Attivata interfaccia grafica
+			self.screen_length=0
+			self.screen_height=0
+			self.background_color=(255,255,255)
+			background_transparency=False
+			self.font_size=10
+			self.font_color=(0,0,0)
+			self.cell_length=25
+			self.cell_height=25
+			self.busy_cell_color=(150, 222, 209)
+			self.free_cell_color=(127,127,127)
+			self.window_title="Magazzino"
+			self.show_window_title=False
+			self.scale_factor=1.0
+			#self.draw()
 	
-	def set_cella_occupata(fila,box,id):
+	def inizializza_grafica(self, window_title, show_window_title, background_color, background_transparency, font_size, font_color, cell_length, cell_height, busy_cell_color, free_cell_color, scale_factor):
+		self.window_title=window_title							# titolo finestra, es. "Magazzino 1 - Ground Level"
+		self.show_window_title=show_window_title				# se =1 visualizza titolo, altrimenti no.
+		#self.screen_length=screen_length 						# larghezza finestra grafica, es. 1024
+		#self.screen_height=screen_height 						# altezza finestra grafica, es. 768
+		self.background_color=background_color 					# colore di sfondo finestra, es. (230,240,250)
+		self.background_transparency=background_transparency 	# sfondo trasparente: 1 = trasparenza ON, 0 = trasparenza OFF
+		self.font_size=font_size 								# dimensione caratteri standard, es. 10
+		self.font_color=font_color 								# colore caratteri standard, es. (0,0,0)
+		self.cell_length=cell_length 							# larghezza cella magazzino, es. 25
+		self.cell_height=cell_height 							# altezza cella magazzino, es. 25
+		self.busy_cell_color=busy_cell_color					# colore assegnato alla cella OCCUPATA
+		self.free_cell_color=free_cell_color					# colore assegnato alla cella LIBERA
+		self.scale_factor=scale_factor							# rapporto pixel/mm
+
+		pygame.display.set_caption("Layout Magazzino")
+		pygame.mouse.set_visible(1)
+
+		
+		if (self.background_transparency):	# Genera uno sfondo TRASPARENTE
+			background = pygame.Surface(screen.get_size(), pygame.SRCALPHA, 32)
+			background = background.convert_alpha()
+		else:
+			background = pygame.Surface(screen.get_size())
+			background.convert()
+			background.fill(background_color)
+		
+		screen.blit(background, (0, 0))
+		#self.draw()
+		
+	def set_cella_occupata(self,fila,box,id):
 		m=self.me[fila][box]
 		m[0]=True
 		m[3]=id
 		self.me[fila][box]=m
+		if (self.screen):
+			self.draw_cella(m,id)
 		
-	def set_cella_libera(fila,box):
+	def set_cella_libera(self,fila,box):
 		m=self.me[fila][box]
 		m[0]=False
 		ret=m[3]
 		m[3]=-1
 		self.me[fila][box]=m
+		if (self.screen):
+			self.draw_cella(m)
 		return (ret)
 
 	def get_fila (self,fila):
@@ -108,6 +203,50 @@ class magazzino ():
 		
 	def get_numero_file(self):
 		return (len(self.me[0]))
+
+	def draw_cella(self, cl,id=0):
+		if (self.screen):
+			if(cl[0]):
+				#Cella PIENA
+				txt =str(id)
+				pygame.draw.rect(self.screen, self.busy_cell_color, (cl[1]*self.scale_factor, cl[2]*self.scale_factor,self.cell_length*self.scale_factor, self.cell_height*self.scale_factor), 0)	#pygame.draw.rect(screen, color, (x,y,width,height), thickness)
+				#gui.writeConsole("Piena: cl[1]=%d cl[2]=%d"%(cl[1],cl[2]))	#DEBUG
+			else:
+				#Cella VUOTA
+				txt = ""
+				# "Cancella" la cella prima di sovrascriverla
+				#pygame.draw.rect(self.screen, self.background_color, (cl[1]*self.scale_factor, cl[2]*self.scale_factor,self.cell_length*self.scale_factor, self.cell_height*self.scale_factor), 0)	#Rettangolo pieno dello stesso colore del bordo
+				pygame.draw.rect(self.screen, self.free_cell_color, (cl[1]*self.scale_factor, cl[2]*self.scale_factor,self.cell_length*self.scale_factor, self.cell_height*self.scale_factor), 1)	#pygame.draw.rect(screen, color, (x,y,width,height), thickness)
+				#gui.writeConsole("Vuota: cl[1]=%d cl[2]=%d"%(cl[1],cl[2]))	#DEBUG
+			
+			#def print_xcentered_text(txt,x,y,size,colore=(0,0,255)):
+			print_xycentered_text(txt, (cl[1]+self.cell_length/2)*self.scale_factor, (cl[2]+self.cell_height/2)*self.scale_factor, self.font_size, self.font_color)
+
+		return ()
+		
+	def	draw (self):
+		if (self.screen):
+			if (not self.background_transparency):
+				self.screen.fill(self.background_color)
+			for f in self.me:
+				for b in f:
+					self.draw_cella(b, b[3])
+			pygame.display.update()
+		
+			#Scrive n. fila e n. box in ascissa e ordinata
+			for i in range(0, self.n_file):
+				print_xcentered_text(str(i),(self.origine[0]+i*self.passo_celle[0]+self.cell_length/2)*self.scale_factor, (self.origine[1]-self.font_size)*self.scale_factor,self.font_size,self.font_color)
+			for j in range(0, self.n_box):
+				print_ycentered_text(str(j),(self.origine[0]-self.font_size)*self.scale_factor, (self.origine[1]+j*self.passo_celle[1]+self.cell_height/2)*self.scale_factor,self.font_size,self.font_color)
+			
+			
+			if (self.show_window_title):	#Mostra titolo finestra in alto al centro
+				print_xcentered_text(self.window_title,screen.get_width()/2, 10,self.font_size*2,self.font_color)
+			pygame.display.flip()
+		return ()
+		
+
+		
 # Scandisce tutto il magazzino e seleziona la cella 
 # per la quale la differenza diametro con quello accanto e' minore
 # restituisce numero fi fila e numero di box sotto forma di lista
@@ -127,7 +266,11 @@ class magazzino ():
 				b=b+1
 			f=f+1
 			return([f,b])		
-		
+	
+
+		return ()
+	
+	
 class BaseDati():
 	def __init__(self):
 		self.me = dict()
@@ -685,20 +828,114 @@ def  intersezione ():
 	gui.writeConsole("x= %.2f z = %.2f"%(punti[0],punti[1]))
 	
 
+	
+def  magazzino_gen ():
+	global screen
+	
+	#Initializza ambiente grafico Pygame
+	pygame.init()
+	# screen = pygame.display.set_mode((1024, 768), RESIZABLE)
+	screen = pygame.display.set_mode((0,0), RESIZABLE)	#Inizializza una finestra con la stessa risoluzione dello schermo in uso (es. 1440 x 900) ridimensionabile
+	
+	#Prepare Objects
+	clock = pygame.time.Clock()
+
+	# ---------------------------------------- MAGAZZINO 1 ----------------------------------------	
+	#Definisce oggetto magazzino #1
+	passo=[40,30]
+	org=[70,70]
+	n_file=20
+	n_box=10
+	mag=magazzino (n_file,n_box,org,passo,10,screen)
+
+	# Preferenze ambiente grafico magazzino #1
+	window_title="Warehouse 1: Ground Level"
+	show_window_title = 1
+	background_color=(240,250,250)
+	background_transparency = 0
+	font_size=15
+	font_color=(0,0,0)
+	cell_length=30
+	cell_height=30
+	busy_cell_color=(150, 222, 209)
+	free_cell_color=(127,127,127)
+	scale_factor=1
+
+	#def inizializza_grafica(self, window_title, show_window_title, background_color, background_transparency, font_size, font_color, cell_length, cell_height, busy_cell_color, free_cell_color, scale_factor):
+	mag.inizializza_grafica(window_title, show_window_title, background_color, background_transparency, font_size, font_color, cell_length, cell_height, busy_cell_color, free_cell_color, scale_factor)
+	
+	# vengono riempite 10 celle a caso
+	for i in range(1,10):
+		mag.set_cella_occupata(int(random.random()*n_file),int(random.random()*n_box),int(random.random()*1000))
+
+
+	
+	# Aggiorna lo schermo: usare ogni volta che viene modificata la configurazione del magazzino
+	mag.draw()
+	pygame.display.flip()
+	
+	
+	#time.sleep(3)
+	
+	# ---------------------------------------- MAGAZZINO 2 ----------------------------------------
+	#Definisce oggetto magazzino #2
+	passo=[40,30]
+	org=[70,85]
+	n_file=10
+	n_box=10
+	mag2=magazzino (n_file,n_box,org,passo,10, screen)
+
+
+	# Preferenze ambiente grafico magazzino #2
+	window_title="Warehouse 1: Level 1"
+	show_window_title = 1
+	background_color=(240,240,240)
+	background_transparency = 0
+	font_size=15
+	font_color=(50,50,50)
+	cell_length=30
+	cell_height=30
+	busy_cell_color=(180, 110, 130)
+	free_cell_color=(127,100,150)
+	scale_factor=1
+
+	#def inizializza_grafica(self, window_title, show_window_title, background_color, background_transparency, font_size, font_color, cell_length, cell_height, busy_cell_color, free_cell_color, scale_factor):
+	mag2.inizializza_grafica(window_title, show_window_title, background_color, background_transparency, font_size, font_color, cell_length, cell_height, busy_cell_color, free_cell_color, scale_factor)
+	
+	# vengono riempite 10 celle a caso
+	for i in range(1,10):
+		mag2.set_cella_occupata(int(random.random()*n_file),int(random.random()*n_box),int(random.random()*1000))
+
+	
+	
+	# Aggiorna lo schermo: usare ogni volta che viene modificata la configurazione del magazzino
+	mag2.draw()
+	pygame.display.flip()
+
+	# Event loop
+	while 1:
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				pygame.quit()
+			if event.type == KEYUP:
+				if event.key == K_1:	# Se premuto tasto '1', mostra magazzino #1
+					mag.draw()
+				if event.key == K_2:	# Se premuto tasto '2', mostra magazzino #2
+					mag2.draw()
+
+
+
+
 class MyGUI(SimGUI):
     def __init__(self,win,**par):
-        SimGUI.__init__(self,win,**par)
-        self.run.add_command(label="Acquisisci Layout",
-                             command=read_layout,underline=0)
-        self.run.add_command(label="Acquisisci Handling System",
-                             command=read_handling,underline=0)
-        self.run.add_command(label="Avvia Simulazione",
-                             command=model,underline=0)
-        self.run.add_command(label="Crea DataBase",
-                             command=db_gen,underline=0)
-        self.run.add_command(label="Intersezione Circonferenze",
-                             command=intersezione,underline=0)
-        self.params=Parameters(duration=28800,destinazione="C2",nrLaunchers=3)
+		SimGUI.__init__(self,win,**par)
+		self.run.add_command(label="Acquisisci Layout",command=read_layout,underline=0)
+		self.run.add_command(label="Acquisisci Handling System", command=read_handling,underline=0)
+		self.run.add_command(label="Avvia Simulazione", command=model,underline=0)
+		self.run.add_command(label="Crea DataBase", command=db_gen,underline=0)
+		self.run.add_command(label="Intersezione Circonferenze", command=intersezione,underline=0)
+		self.run.add_command(label="Riempi magazzino (PROVA)", command=magazzino_gen,underline=0)
+		self.params=Parameters(duration=28800,destinazione="C2",nrLaunchers=3)
       
 root=Tk()
 gui=MyGUI(root,title="SimCoilMag",doc=__doc__,consoleHeight=50)
