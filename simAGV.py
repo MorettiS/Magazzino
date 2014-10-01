@@ -312,7 +312,7 @@ class producer(Process):
 	def produce(self):
 		self.buffer=cerca_elemento(self.out,percorso)
 		while True:
-			self.actualrate=gauss(self.rate,self.sigma)
+			self.actualrate=random.gauss(self.rate,self.sigma)
 #			gui.writeConsole("%.2f %s: In  attesa per %s"% (now(),self.id,self.actualrate))
 			yield hold,self,self.actualrate
 			self.count=self.count+1
@@ -341,7 +341,7 @@ class consumer (Process):
 	def consume(self):
 		self.buffer=cerca_elemento(self.inp,percorso)
 		while True:
-			self.actualrate=gauss(self.rate,self.sigma)
+			self.actualrate=random.gauss(self.rate,self.sigma)
 			yield hold,self,self.actualrate
 			gui.writeConsole("%.2f %s: In attesa di prelievo  Coil su %s"% (now(),self.id,self.buffer.id))
 			yield get,self,self.buffer.store,
