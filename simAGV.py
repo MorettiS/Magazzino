@@ -49,7 +49,7 @@ def print_xycentered_text(txt,x,y,size,colore=(0,0,255)):
 
 	
 class template ():
-	def __init__ (self,larghezza,foro,dmedio):
+	def __init__ (self,larghezza,foro,dmedio,verniciato):
 		self.larghezza=larghezza # misure in mm
 		self.foro=foro # misure in mm
 		self.dmedio=dmedio # misure in mm
@@ -57,6 +57,7 @@ class template ():
 #		self.ID=1000 # misure in mm
 		self.ID=0
 		self.diam_min=self.foro*1.10
+		self.verniciato=verniciato
 		
 		
 	def produci (self):
@@ -68,7 +69,7 @@ class template ():
 #		coils.add(str(self.ID),0,self.larghezza,diametro,peso,False)
 #		self.ID=self.ID+1
 		self.ID=int(random.random()*150000)
-		return ([self.ID,self.larghezza,d*100,p,False])
+		return ([self.ID,self.larghezza,d*100,p,self.verniciato])
 #-----------------------------------------------------------------			
 #-----------------------------------------------------------------			
 #-----------------------------------------------------------------			
@@ -297,29 +298,41 @@ class BaseDati():
 #-----------------------------------------------------------------			
 class producer(Process):
 
-	def __init__ (self,nome,out_buffer,rate,sigma):
+	def __init__ (self,nome,out_buffer,rate,sigma, tipo_rotolo, db=None):
 		Process.__init__(self,name=nome)
 		self.id=nome
 		self.tipo="producer"
-
+		self.db=db
+		self.tipo_rotolo=tipo_rotolo
 		self.out=out_buffer
 		self.rate=int(rate)
 		self.sigma=int(sigma)
 		self.stato="IDLE"
-		self.count=0
+		#self.count=0
 		gui.writeConsole("Definita macchina %s  %s deposita sulla stazione %s ogni %s s "% (self.tipo,self.id,self.out,self.rate))
 
 	def produce(self):
 		self.buffer=cerca_elemento(self.out,percorso)
+		
 		while True:
 			self.actualrate=random.gauss(self.rate,self.sigma)
+			
+			#gui.writeConsole("DEBUG: %d"% (int(self.tipo_rotolo[4:])))	#Estrae numero N dalla stringa "TipoN"
+			rotolo=vetrina[int(self.tipo_rotolo[4:])-1]	#Estrae numero N dalla stringa "TipoN" --> Diventa indice del vettore vetrina
+			gui.writeConsole("Tipo rotolo: %s"% (self.tipo_rotolo))
+			r=rotolo.produci()
+			
 #			gui.writeConsole("%.2f %s: In  attesa per %s"% (now(),self.id,self.actualrate))
 			yield hold,self,self.actualrate
-			self.count=self.count+1
+			#self.count=self.count+1
 #			gui.writeConsole("%.2f %s: Prodotto un Coil %s "% (now(),self.id,self.count))
-			yield put,self,self.buffer.store,["coil"+str(self.count)]
-#			gui.writeConsole("%.2f %s: Depositato un Coil Codice_%s # su %s"% (now(),self.id,self.count,self.buffer.id))
 
+			yield put,self,self.buffer.store,["coil ID: "+str(r[0])] #r[0]= ID del coil generato dal metodo rotolo.produci()
+			#gui.writeConsole("%.2f %s: Depositato un Coil Codice_%s # su %s"% (now(),self.id,self.count,self.buffer.id))
+			gui.writeConsole("%.2f %s: Depositato Coil ID: %s su %s"% (now(),self.id,str(r[0]),self.buffer.id))
+			self.db.add(r[0],0,r[1],r[2],r[3],(r[4]=="True"))
+			gui.writeConsole("%.2f %s: Aggiunto Coil ID: %s al database - %s, Verniciato: %s"% (now(),self.id,str(r[0]), self.tipo_rotolo, r[4]))
+			
 	def define_new_consumer (sef,consumer):
 		self.consumer=consumer
 		gui.writeConsole("Definita Nuovo Consumer % per  %s"% (self.consumer,self.id))
@@ -507,7 +520,172 @@ class agv (Process):
 		self.destinazione(stazLoad)
 			
 			
-#----------Fine Classe AGV-------------------------------------------------------------------------------------------------------------------------------------------------------						
+#----------Fine Classe AGV-------------------------------------------------------------------------------------------------------------------------------------------------------				
+
+
+
+
+# class agv (Process):
+
+	# def __init__(self,nome,velmax,batlevel,ini_staz,index):
+		# Process.__init__(self, name=nome)
+		# self.id=nome
+		# self.tipo="agv"
+		# self.batlevel=batlevel
+		# self.pos=ini_staz
+		# self.park=ini_staz
+		# self.dest="Nessuna"
+		# self.load=0		 
+		# self.stato = "LIBERO"
+		# self.v_max=int(velmax)
+		# self.vel=0 
+		# self.verso="*" 		##may be "+" , "-" or "*"
+		# self.Ti=0
+		# self.Tlibero=0
+		# self.Ttraveling=0
+		# self.Tmission=0
+		# self.mlibero=index
+		# self.mtraveling=index+1
+		# self.mmission=index+2
+		# gui.writeConsole("Definita macchina %s  %s Livello Batteria= %s in attesa alla stazione = %s "% (self.tipo,self.id,self.batlevel,self.pos))
+
+	# def pilota (self):
+		# self.Tcambio=now()
+		# self.cambio_stato=1
+		# while True:
+			# if self.cambio_stato:
+				# gui.writeConsole("%.2f %s: Stato %s "% (now(),self.id,self.stato))
+				# gui.simulation[self.mlibero].observe(self.Tlibero)
+				# gui.simulation[self.mtraveling].observe(self.Ttraveling)
+				# gui.simulation[self.mmission].observe(self.Tmission)
+				# self.cambio_stato=0
+			# if (self.stato =="LIBERO"):
+				# yield hold,self,1
+				# self.Tlibero=self.Tlibero+now()-self.Ti
+				# self.Ti=now()
+				# if (self.dest!="Nessuna"):
+					# self.locate=cerca_elemento(self.pos,percorso) 
+# #					gui.writeConsole("%.2f  Trovata Postazione iniziale:  %s in  %s"% (now(),self.id,self.locate.id))
+					# if (self.locate):
+
+						# self.stato="MISSION"
+						# self.cambio_stato= 1
+			# elif (self.stato=="TRAVELING") or (self.stato =="MISSION"):
+# #				yield hold,self,1
+				# if (self.stato=="TRAVELING"):
+					# self.Ttraveling=self.Ttraveling+now()-self.Ti
+				# else:
+					# self.Tmission=self.Tmission+now()-self.Ti
+				# self.Ti=now()
+				# self.pos=self.locate.id
+				# if (self.locate.id == self.dest): #----------------- Arrivato a destinazione
+					# gui.writeConsole("%.2f %s: Arrivato a Destinazione %s(%s) "% (now(),self.id,self.locate.id,self.locate.tipo))
+					# if (self.locate.tipo =="carico"):
+						# gui.writeConsole("%.2f %s: Carica da %s (Coils = %d) per scaricare in %s "% (now(),self.id,self.locate.id,self.locate.store.nrBuffered,self.locate.consumer))
+						# self.destinazione(self.locate.consumer)
+						# self.locate=cerca_elemento(self.pos,percorso) 
+						# reactivate(self.locate,at=now())
+						# self.stato="MISSION"
+						# self.cambio_stato=1
+						# self.load=self.load+self.locate.nrpeek
+						# yield get,self,self.locate.store,self.locate.nrpeek
+						# yield hold,self,self.locate.delay
+					# elif(self.locate.tipo=="scarico"):
+						# gui.writeConsole("%.2f %s: Scarica su %s (coils=%d) "% (now(),self.id,self.locate.id,self.locate.store.nrBuffered+self.load))
+						# self.destinazione(self.park)	
+						# self.locate=cerca_elemento(self.pos,percorso) 
+						# self.stato="TRAVELING"
+						# self.cambio_stato = 1
+						# yield hold,self,self.locate.delay
+						# for i in range(1,self.load+1):
+							# yield put,self,self.locate.store,["coil"]
+						# self.load=0
+					# elif(self.locate.tipo=="park"):
+# #						gui.writeConsole("%.2f %s: Arrivato a Destinazione %s "% (now(),self.id,self.locate.id))
+						# self.stato="LIBERO"
+						# self.cambio_stato=1
+						# self.dest="Nessuna"
+					# else:
+# #						gui.writeConsole("MARK ????? ")
+						# gui.writeConsole("%.2f %s: Arrivato a Destinazione %s"% (now(),self.id,self.locate.id))
+						# self.stato="LIBERO"
+						# self.cambio_stato=1
+						# self.dest="Nessuna"
+				# else: 
+					# if self.locate.tipo=="tratto":
+						# self.vel=self.v_max
+						# if self.locate.v_max<self.vel:
+							# self.vel=self.locate.v_max
+
+						# gui.writeConsole("Velocita' %s: %.0f m/min nel tratto %s" %  (self.id, self.vel, self.locate.id))
+						# self.T=60.0*self.locate.lunghezza/(self.vel)
+
+						# if len(self.locate.r.activeQ)<> 0:
+                    					# gui.writeConsole("%.2f %s: In attesa di percorrere il Tratto %s che e' occupato"% (now(),self.id,self.locate.id))
+                				# yield request,self,self.locate.r 
+# #                				gui.writeConsole("%.2f %s: sta percorrendo il Tratto %s con verso %s"% (now(),self.id,self.locate.id,self.verso))
+                				# yield hold,self,self.T
+                				# yield release,self,self.locate.r
+						# if (self.verso=="+"):
+							# self.verso=self.locate.next_p[-1]
+							# self.locate=cerca_elemento(self.locate.next_p[:-1],percorso) #----- Si posiziona sul tratto successivo
+						# elif (self.verso=="-"):
+							# self.verso=self.locate.next_m[-1]
+							# self.locate=cerca_elemento(self.locate.next_m[:-1],percorso) #----- Si posiziona sul tratto successivo
+					# elif self.locate.tipo=="incrocio":
+# #						gui.writeConsole("%.2f %s: all'incrocio %s Cerca direzione per %s"% (now(),self.id,self.locate.id,self.dest))
+						# i=self.locate.id
+						# self.verso=self.locate.cerca_per(self.dest)[-1]
+						# self.locate=cerca_elemento(self.locate.cerca_per(self.dest)[:-1],percorso)
+# #                    				gui.writeConsole("%.2f %s: all'incrocio %s presa direzione %s "% (now(),self.id,i,self.locate.id))
+					# else:
+						# self.verso=self.locate.next[-1]
+# #                  				gui.writeConsole("%.2f %s cerca %s"% (now(),self.id,self.locate.next[:-1]))
+						# self.locate=cerca_elemento(self.locate.next[:-1],percorso) #----- Si posiziona sul (punta al)  tratto successivo
+# #                  				gui.writeConsole("%.2f %s Trovato %s"% (now(),self.id,self.locate.id))
+# #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+		
+	# def destinazione(self,dest):
+		# self.dest=dest
+                # gui.writeConsole("%.2f %s: Acquisita Missione: Destinazione %s"% (now(),self.id,self.dest))
+
+	# def distanza (self,staz):
+		# self.dist=0
+		# self.v="*"
+		# self.a=cerca_elemento(self.pos,percorso) 
+		# self.b=cerca_elemento(staz,percorso)
+		# self.v= self.verso
+# #		gui.writeConsole("A = %s a  B = %s Distanza = %d"% (self.a.id,self.b.id,self.dist))
+		# while self.a.id!=self.b.id:
+# #			gui.writeConsole("A = %s a  B = %s verso %s Distanza = %d"% (self.a.id,self.b.id,self.v,self.dist))
+			# if self.a.tipo =="tratto":
+				# self.dist=self.dist+int(self.a.lunghezza)
+				# if (self.v=="+"):
+					# self.v=self.a.next_p[-1]
+					# self.a=cerca_elemento(self.a.next_p[:-1],percorso) #----- Si posiziona sul tratto successivo
+				# elif (self.v=="-"):
+					# self.v=self.a.next_m[-1]
+					# self.a=cerca_elemento(self.a.next_m[:-1],percorso) #----- Si posiziona sul tratto successivo
+			# elif self.a.tipo =="incrocio":
+				# self.v=self.a.cerca_per(self.b.id)[-1]	
+				# self.a=cerca_elemento(self.a.cerca_per(self.b.id)[:-1],percorso)				
+			# else:
+				# self.v=self.a.next[-1]
+				# self.a=cerca_elemento(self.a.next[:-1],percorso)
+		# gui.writeConsole("%.2f %s: Distanza da %s  = %d"% (now(),self.id,staz,self.dist))
+		# return self.dist
+
+	# def mission (self,stazLoad):
+		# self.stato="MISSION"
+		# self.cambio_stato=1;
+		# self.destinazione(stazLoad)
+			
+			
+# #----------Fine Classe AGV-------------------------------------------------------------------------
+
+
+
+	
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -567,7 +745,7 @@ class carico (Process):
 		self.monitor = monitor
 		self.nrpeek=int(nrpeek)
             	gui.writeConsole("Definito Carico %s Capacity= %s next= %s consumer=%s Tempo di Carico = %d s"% (self.id,self.capacity,self.next,self.consumer,self.delay))
-         	gui.writeConsole("    ........Numero di pezzi prelavati ad ogni ciclo %s"% (self.nrpeek))
+         	gui.writeConsole("    ........Numero di pezzi prelevati ad ogni ciclo %s"% (self.nrpeek))
 
 	def automate(self):
 		for self.e in movimentazione:
@@ -739,6 +917,21 @@ def read_layout():
                 		a= e.getAttribute("nome")
                			b= e.getAttribute("next")
                			percorso.append(park(a,b))
+
+def read_prodotti():
+	xml_data = minidom.parse("impianto.xml")
+	for l in xml_data.getElementsByTagName("prodotto"):
+		for e in l.childNodes:
+			if (e.nodeName=="tipo"):
+				a=e.getAttribute("nome")
+				b=e.getAttribute("diametro")
+				c=e.getAttribute("larghezza")
+				d=e.getAttribute("foro")
+				f=e.getAttribute("verniciato")
+				vetrina.append(template(int(c),int(d),int(b),f))
+
+						
+						
 def read_handling():
 	xml_data = minidom.parse("impianto.xml")
 	for h in xml_data.getElementsByTagName("handler"):
@@ -758,22 +951,30 @@ def read_handling():
                 		a= m.getAttribute("nome")
                 		b= m.getAttribute("to") 
                 		c= m.getAttribute("rate")
-				d= m.getAttribute("sigma")
-				movimentazione.append(producer(a,b,c,d))
+                		d= m.getAttribute("sigma")
+                		e= m.getAttribute("tipo_prodotto")
+				movimentazione.append(producer(a,b,c,d,e, db_rotoli))
 			if (m.nodeName == "consumer"):
                			a= m.getAttribute("nome")
                 		b= m.getAttribute("from") 
                 		c= m.getAttribute("rate")
-				d= m.getAttribute("sigma")
+                		d= m.getAttribute("sigma")
 				movimentazione.append(consumer(a,b,c,d))
 
 def model():
+    global db_rotoli
     initialize()
-    del movimentazione [:]
+    db_rotoli=BaseDati()	#Crea database coils
+    del movimentazione[:]
     del percorso[:]
     del gui.simulation[:]
+    read_prodotti()
     read_layout()
     read_handling()
+    
+    #rotolo=template (800,600,1100)
+	
+	
     for p in movimentazione:
         if (p.tipo =="producer"):
 	       	activate(p,p.produce(),at=0)
@@ -790,6 +991,12 @@ def model():
 		activate(p,p.automate(),at=0)
 		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
 	
+	i=0
+	for r in vetrina:
+		#DEBUG
+		#da fare
+		pass
+	
     simulate(until=gui.params.duration)
 #    simulate(until=10000)
     gui.noRunYet=False
@@ -804,6 +1011,11 @@ def model():
 		i=i+1
 #    gui.writeStatusLine("%s rockets launched in %.1f minutes"%(Launcher.nrLaunched,now()))
 
+
+
+
+
+
 def db_gen():
 	db_rotoli = BaseDati()
 #	id,spessore,larghezza,diametro,peso
@@ -811,7 +1023,7 @@ def db_gen():
 	for i in range(1,5000):
 		r=rotolo.produci()
 		if(not db_rotoli.cerca(r[0])):
-			db_rotoli.add(r[0],0,r[1],r[2],r[3],r[4])
+			db_rotoli.add(r[0],0,r[1],r[2],r[3],(r[4]=="True"))
 			res = db_rotoli.cerca(r[0])
 			if res <> 0 :
 				gui.writeConsole("id= %s   larghezza = %d diametro = %d peso = %d"%(r[0],res["larghezza"],res["diametro"],res["peso"]))
@@ -940,6 +1152,7 @@ class MyGUI(SimGUI):
 root=Tk()
 gui=MyGUI(root,title="SimCoilMag",doc=__doc__,consoleHeight=50)
 gui.simulation=[]
+vetrina=[]
 movimentazione=[]
 percorso=[]
 archivio=[]
