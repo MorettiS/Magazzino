@@ -7,6 +7,7 @@
 		MAC = Macchina generica che produce coil
 		SP = Sella di prelievo
 		SS = Sella di scarico
+		SPD = Spedizione
 -->
 
 <impianto>
@@ -17,25 +18,20 @@
 	<handler>
 		<cp nome="CP1" vel_max="30" pos="home1"/>
  		<producer nome="MAC1" to="SP1"  rate="1800" sigma="100" tipo_prodotto="Tipo1"/>
-		<producer nome="MAC2" to="SP2"  rate="1700" sigma="80" tipo_prodotto="Tipo2"/>
-		<consumer nome="CP1" from="SS1" rate="600" sigma="50"/>
+		<!--- <producer nome="MAC2" to="SP2"  rate="1700" sigma="80" tipo_prodotto="Tipo2"/> -->
+		<consumer nome="SPD1" from="SS1" rate="600" sigma="50"/>
 	</handler>
 	<layout>
-		<scarico nome="SS1" size="100" next="Rc3-" delay="60"></scarico>
-		<carico nome="SP1" to ="C3" size="1" nrpeek="1" next="Rp1+" delay="60" ></carico>
-		<carico nome="SP2" to ="C3" size="1" nrpeek="1" next="Rp1+" delay="50" ></carico>
-		<incrocio nome="I1" destmap="P1=Rp1-,C3=R1+,P2=R3-,home1=home1,home2=home2,home3=home3"></incrocio>
-		<tratto nome="Rp1" lunghezza="10"  vmax="15" next_p="I1" next_m="P1" full="N"/>
-		<tratto nome="R1"  lunghezza="10"  vmax="30" next_p="Cv1+" next_m="I1" full="N"/>
-		<tratto nome="Cv1" lunghezza="25"  vmax="20" next_p="R2+" next_m="R1-" full="N"/>
-		<tratto nome="R2"  lunghezza="300" vmax="30" next_p="Cv2+" next_m="Cv1-" full="Y"/>
-		<tratto nome="Cv2" lunghezza="25"  vmax="20" next_p="Rc3+" next_m="R2-" full="N"/>
-		<tratto nome="Rc3" lunghezza="40"  vmax="30" next_p="C3" next_m="Cv2-" full="N"/>
-		<tratto nome="Rp2" lunghezza="10"  vmax="20" next_p="Cv3+" next_m="P2" full="N"/>
+		<scarico nome="SS1" size="1" next="R1-" delay="60"></scarico>
+		<carico nome="SP1" to ="SS1" size="1" nrpeek="1" next="Rp1+" delay="60" ></carico>
+		<carico nome="SP2" to ="SS1" size="1" nrpeek="1" next="Rp1+" delay="50" ></carico>
+		<incrocio nome="I1" destmap="SP1=Rp1-,SS1=R1+,SP2=R3-,home1=home1,home2=home2"></incrocio>
+		<tratto nome="Rp1" lunghezza="10"  vmax="15" next_p="I1" next_m="SP1" full="N"/>
+		<tratto nome="R1"  lunghezza="10"  vmax="30" next_p="SS1" next_m="I1-" full="N"/>
+		<tratto nome="Rp2" lunghezza="10"  vmax="20" next_p="Cv3+" next_m="SP2" full="N"/>
 		<tratto nome="Cv3" lunghezza="10"  vmax="15" next_p="R3+" next_m="Rp2-" full="N"/>
 		<tratto nome="R3"  lunghezza="25"  vmax="30" next_p="I1" next_m="Cv3-" full="N"/>
 		<park nome="home1" next="I1"></park>
 		<park nome="home2" next="I1"></park>
-		<park nome="home3" next="I1"></park>
 	</layout>
 </impianto>

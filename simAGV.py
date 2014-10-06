@@ -363,14 +363,13 @@ class consumer (Process):
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------- Processo di Gestione Movimentazione (AGV) --------------------------------------------------------------------------
-class agv (Process):
+#-------------------------------------------- Processo di Gestione Movimentazione (CP) ---------------------------------------------------------------------------
+class cp (Process):
 
-	def __init__(self,nome,velmax,batlevel,ini_staz,index):
+	def __init__(self,nome,velmax,ini_staz,index):
 		Process.__init__(self, name=nome)
 		self.id=nome
-		self.tipo="agv"
-		self.batlevel=batlevel
+		self.tipo="cp"
 		self.pos=ini_staz
 		self.park=ini_staz
 		self.dest="Nessuna"
@@ -386,7 +385,7 @@ class agv (Process):
 		self.mlibero=index
 		self.mtraveling=index+1
 		self.mmission=index+2
-		gui.writeConsole("Definita macchina %s  %s Livello Batteria= %s in attesa alla stazione = %s "% (self.tipo,self.id,self.batlevel,self.pos))
+		gui.writeConsole("Definita macchina %s  %s in attesa alla stazione = %s "% (self.tipo,self.id,self.pos))
 
 	def pilota (self):
 		self.Tcambio=now()
@@ -400,13 +399,15 @@ class agv (Process):
 				self.cambio_stato=0
 			if (self.stato =="LIBERO"):
 				yield hold,self,1
+				# gui.writeConsole("DEBUG passo di qui 1 - OK DEBUG")
 				self.Tlibero=self.Tlibero+now()-self.Ti
 				self.Ti=now()
 				if (self.dest!="Nessuna"):
-					self.locate=cerca_elemento(self.pos,percorso) 
+					self.locate=cerca_elemento(self.pos,percorso)
+					gui.writeConsole("DEBUG passo di qui 2 DEBUG")
 #					gui.writeConsole("%.2f  Trovata Postazione iniziale:  %s in  %s"% (now(),self.id,self.locate.id))
 					if (self.locate):
-
+						gui.writeConsole("DEBUG passo di qui 25 DEBUG")
 						self.stato="MISSION"
 						self.cambio_stato= 1
 			elif (self.stato=="TRAVELING") or (self.stato =="MISSION"):
@@ -739,7 +740,7 @@ class carico (Process):
 		self.store=Store(capacity=self.capacity,initialBuffered=self.container,monitored=True)
 #		self.r=Resource(capacity=s,name="carico",unitName=self.id)
 		self.next=next
-		self.agv=[] # Macchine AGV
+		self.cp=[] # Macchine CARROPONTE
 		self.consumer= consumer
 		self.delay=int(delay)
 		self.monitor = monitor
@@ -747,10 +748,12 @@ class carico (Process):
             	gui.writeConsole("Definito Carico %s Capacity= %s next= %s consumer=%s Tempo di Carico = %d s"% (self.id,self.capacity,self.next,self.consumer,self.delay))
          	gui.writeConsole("    ........Numero di pezzi prelevati ad ogni ciclo %s"% (self.nrpeek))
 
+	
+	# ------ da fare ----- # adattare logica selezione AGV a quella del CARROPONTE # ------ da fare ----- #
 	def automate(self):
 		for self.e in movimentazione:
-			if self.e.tipo=="agv":
-				self.agv.append(self.e)
+			if self.e.tipo=="cp":
+				self.cp.append(self.e)
 		self.flag=0
 		while True:
 			yield hold,self,1
@@ -760,20 +763,20 @@ class carico (Process):
 					gui.simulation[self.monitor].observe(self.store.nrBuffered)
 				self.distanza = 10000 # distanza non raggiungibile in nessuna configurazione di calcolo
 				self.i=0
-				self.agv_id=-1
-				for self.m in self.agv:
+				self.cp_id=-1
+				for self.m in self.cp:
 #					if not self.flag:
 #						gui.writeConsole("%.2f %s: Calcolo distanza per %s"% (now(),self.id,self.m.id))
 					if (self.m.stato == "LIBERO") or (self.m.stato=="TRAVELING"):
 						self.d = self.m.distanza (self.id)
 						if ( self.d < self.distanza):
 							self.distanza = self.d
-							self.agv_id=self.i
+							self.cp_id=self.i
 					self.i=self.i+1
 				self.flag=1
-				if (self.agv_id > -1):
+				if (self.cp_id > -1):
 					self.flag=0
-					self.agv[self.agv_id].mission(self.id)
+					self.cp[self.cp_id].mission(self.id)
 #					gui.writeConsole("%.2f Stazione di Carico %s Assegnata Missione a  %s "% (now(),self.id,self.agv[self.agv_id].id))
 					yield passivate,self
 
@@ -937,16 +940,15 @@ def read_handling():
 	for h in xml_data.getElementsByTagName("handler"):
 		for m in h.childNodes:
 #			gui.writeConsole(m.nodeName)
-			if (m.nodeName == "agv"):
+			if (m.nodeName == "cp"):
                 		a= m.getAttribute("nome")
                 		b= m.getAttribute("vel_max") 
-                		c= m.getAttribute("bat_lev")
                 		d= m.getAttribute("pos")
     				gui.simulation.append(Monitor(name=a+" LIBERO Time",ylab=" Secondi",tlab="time"))
 				f=len(gui.simulation)-1
     				gui.simulation.append(Monitor(name=a+" TRAVELING Time",ylab=" Secondi",tlab="time"))
     				gui.simulation.append(Monitor(name=a+" MISSION Time",ylab=" Secondi",tlab="time"))
-				movimentazione.append(agv(a,b,c,d,f))
+				movimentazione.append(cp(a,b,d,f))
 			if (m.nodeName == "producer"):
                 		a= m.getAttribute("nome")
                 		b= m.getAttribute("to") 
@@ -982,7 +984,7 @@ def model():
         if (p.tipo =="consumer"):
         	activate(p,p.consume(),at=0)
 		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
-        if (p.tipo =="agv"):
+        if (p.tipo =="cp"):
         	activate(p,p.pilota(),at=0)
 		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
 
@@ -1002,13 +1004,13 @@ def model():
     gui.noRunYet=False
     gui.writeConsole("Simulazione Terminata")
     gui.writeConsole("%d"%(len(gui.simulation)))
-    for m in gui.simulation :
-	t= m.tseries()
-	i=0
-	gui.writeConsole("%s"%(m.name))
-	for x in m.yseries():
-		gui.writeConsole("%s : %s"%(t[i] ,x))
-		i=i+1
+    # for m in gui.simulation :
+	# t= m.tseries()
+	# i=0
+	# gui.writeConsole("%s"%(m.name))
+	# for x in m.yseries():
+		# gui.writeConsole("%s : %s"%(t[i] ,x))
+		# i=i+1
 #    gui.writeStatusLine("%s rockets launched in %.1f minutes"%(Launcher.nrLaunched,now()))
 
 
