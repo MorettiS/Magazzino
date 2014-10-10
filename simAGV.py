@@ -118,8 +118,10 @@ class magazzino ():
 # Una cella e' rappresentata da uno stato di occupazione (True,False) ,
 # una quota di file e una quota di box
 
-	def __init__(self,file,box,org,passo,peso_max,screen=None,background=None):
+	def __init__(self,nome,file,box,org,passo,peso_max,cp_ass,screen=None,background=None):
 		self.me=[]
+		self.cp_associato=cp_ass
+		self.id=nome
 		self.screen=screen
 		self.background=background
 		self.n_file=file
@@ -150,6 +152,8 @@ class magazzino ():
 			self.show_window_title=False
 			self.scale_factor=1.0
 			#self.draw()
+	
+			gui.writeConsole("Creato magazzino: %s"%(self.id))	#DEBUG
 	
 	def inizializza_grafica(self, window_title, show_window_title, background_color, background_transparency, font_size, font_color, cell_length, cell_height, busy_cell_color, free_cell_color, scale_factor):
 		self.window_title=window_title							# titolo finestra, es. "Magazzino 1 - Ground Level"
@@ -366,10 +370,11 @@ class consumer (Process):
 #-------------------------------------------- Processo di Gestione Movimentazione (CP) ---------------------------------------------------------------------------
 class cp (Process):
 
-	def __init__(self,nome,velmax,ini_staz,index):
+	def __init__(self,nome,velmax,ini_staz,index,mag_associato=None):
 		Process.__init__(self, name=nome)
 		self.id=nome
 		self.tipo="cp"
+		self.mag_associato=mag_associato
 		self.pos=ini_staz
 		self.park=ini_staz
 		self.dest="Nessuna"
@@ -385,11 +390,15 @@ class cp (Process):
 		self.mlibero=index
 		self.mtraveling=index+1
 		self.mmission=index+2
+		self.durata_prelievo=60
+		self.sigma_prelievo=1
+		self.magazzini=[]
 		gui.writeConsole("Definita macchina %s  %s in attesa alla stazione = %s "% (self.tipo,self.id,self.pos))
 
 	def pilota (self):
 		self.Tcambio=now()
 		self.cambio_stato=1
+		gui.writeConsole("Associato magazzino %s a carroponte %s"% (self.mag_associato.id, self.id)) #DEBUG 
 		while True:
 			if self.cambio_stato:
 				gui.writeConsole("%.2f %s: Stato %s "% (now(),self.id,self.stato))
@@ -399,176 +408,43 @@ class cp (Process):
 				self.cambio_stato=0
 			if (self.stato =="LIBERO"):
 				yield hold,self,1
-				# gui.writeConsole("DEBUG passo di qui 1 - OK DEBUG")
 				self.Tlibero=self.Tlibero+now()-self.Ti
 				self.Ti=now()
 				if (self.dest!="Nessuna"):
 					self.locate=cerca_elemento(self.pos,percorso)
-					gui.writeConsole("DEBUG passo di qui 2 DEBUG")
-#					gui.writeConsole("%.2f  Trovata Postazione iniziale:  %s in  %s"% (now(),self.id,self.locate.id))
+					gui.writeConsole("Posizione iniziale carroponte %s: (%d,%d) "% (self.locate.id, self.locate.xpos, self.locate.ypos)) #DEBUG
+					#gui.writeConsole("Distanza: %f"% (self.calcola_distanza(self.locate.xpos,self.locate.ypos,0,0))) #DEBUG
+					
 					if (self.locate):
-						gui.writeConsole("DEBUG passo di qui 25 DEBUG")
 						self.stato="MISSION"
 						self.cambio_stato= 1
-			elif (self.stato=="TRAVELING") or (self.stato =="MISSION"):
-#				yield hold,self,1
-				if (self.stato=="TRAVELING"):
-					self.Ttraveling=self.Ttraveling+now()-self.Ti
-				else:
-					self.Tmission=self.Tmission+now()-self.Ti
-				self.Ti=now()
-				self.pos=self.locate.id
-				if (self.locate.id == self.dest): #----------------- Arrivato a destinazione
-					gui.writeConsole("%.2f %s: Arrivato a Destinazione %s(%s) "% (now(),self.id,self.locate.id,self.locate.tipo))
-					if (self.locate.tipo =="carico"):
-						gui.writeConsole("%.2f %s: Carica da %s (Coils = %d) per scaricare in %s "% (now(),self.id,self.locate.id,self.locate.store.nrBuffered,self.locate.consumer))
-						self.destinazione(self.locate.consumer)
-						self.locate=cerca_elemento(self.pos,percorso) 
-						reactivate(self.locate,at=now())
-						self.stato="MISSION"
-						self.cambio_stato=1
-						self.load=self.load+self.locate.nrpeek
-						yield get,self,self.locate.store,self.locate.nrpeek
-						yield hold,self,self.locate.delay
-					elif(self.locate.tipo=="scarico"):
-						gui.writeConsole("%.2f %s: Scarica su %s (coils=%d) "% (now(),self.id,self.locate.id,self.locate.store.nrBuffered+self.load))
-						self.destinazione(self.park)	
-						self.locate=cerca_elemento(self.pos,percorso) 
-						self.stato="TRAVELING"
-						self.cambio_stato = 1
-						yield hold,self,self.locate.delay
-						for i in range(1,self.load+1):
-							yield put,self,self.locate.store,["coil"]
-						self.load=0
-					elif(self.locate.tipo=="park"):
-#						gui.writeConsole("%.2f %s: Arrivato a Destinazione %s "% (now(),self.id,self.locate.id))
-						self.stato="LIBERO"
-						self.cambio_stato=1
-						self.dest="Nessuna"
-					else:
-#						gui.writeConsole("MARK ????? ")
-						gui.writeConsole("%.2f %s: Arrivato a Destinazione %s"% (now(),self.id,self.locate.id))
-						self.stato="LIBERO"
-						self.cambio_stato=1
-						self.dest="Nessuna"
-				else: 
-					if self.locate.tipo=="tratto":
-						self.vel=self.v_max
-						if self.locate.v_max<self.vel:
-							self.vel=self.locate.v_max
+					
+			if (self.stato =="MISSION"):
+				self.dsz=cerca_elemento(self.dest,percorso)
+				self.Tmission=self.Tmission+now()-self.Ti
+				gui.writeConsole("Devo andare qui: %s coordinate: (%d,%d) "% (self.dest,self.dsz.xpos,self.dsz.ypos)) #DEBUG 
+				
+				self.t_attesa=self.calcola_distanza(self.locate.xpos,self.locate.ypos,self.dsz.xpos,self.dsz.ypos)/self.v_max+random.gauss(self.durata_prelievo,self.sigma_prelievo)
+				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
+				yield hold,self,self.t_attesa
+				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
+				#Individua sella di destinazione all'interno del magazzino
+				#magazzino=set_cella_occupata(self,fila,box,id
+				
+				#self.stato="LIBERO"
+				#self.cambio_stato=1
 
-						gui.writeConsole("Velocita' %s: %.0f m/min nel tratto %s" %  (self.id, self.vel, self.locate.id))
-						self.T=60.0*self.locate.lunghezza/(self.vel)
-
-						if len(self.locate.r.activeQ)<> 0:
-                    					gui.writeConsole("%.2f %s: In attesa di percorrere il Tratto %s che e' occupato"% (now(),self.id,self.locate.id))
-                				yield request,self,self.locate.r 
-#                				gui.writeConsole("%.2f %s: sta percorrendo il Tratto %s con verso %s"% (now(),self.id,self.locate.id,self.verso))
-                				yield hold,self,self.T
-                				yield release,self,self.locate.r
-						if (self.verso=="+"):
-							self.verso=self.locate.next_p[-1]
-							self.locate=cerca_elemento(self.locate.next_p[:-1],percorso) #----- Si posiziona sul tratto successivo
-						elif (self.verso=="-"):
-							self.verso=self.locate.next_m[-1]
-							self.locate=cerca_elemento(self.locate.next_m[:-1],percorso) #----- Si posiziona sul tratto successivo
-					elif self.locate.tipo=="incrocio":
-#						gui.writeConsole("%.2f %s: all'incrocio %s Cerca direzione per %s"% (now(),self.id,self.locate.id,self.dest))
-						i=self.locate.id
-						self.verso=self.locate.cerca_per(self.dest)[-1]
-						self.locate=cerca_elemento(self.locate.cerca_per(self.dest)[:-1],percorso)
-#                    				gui.writeConsole("%.2f %s: all'incrocio %s presa direzione %s "% (now(),self.id,i,self.locate.id))
-					else:
-						self.verso=self.locate.next[-1]
-#                  				gui.writeConsole("%.2f %s cerca %s"% (now(),self.id,self.locate.next[:-1]))
-						self.locate=cerca_elemento(self.locate.next[:-1],percorso) #----- Si posiziona sul (punta al)  tratto successivo
-#                  				gui.writeConsole("%.2f %s Trovato %s"% (now(),self.id,self.locate.id))
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+			#sys.exit()
+				
+	def set_magazzino (self,magazzino):
+		#self.magazzini.append(magazzino)
+		pass
 		
-	def destinazione(self,dest):
-		self.dest=dest
-                gui.writeConsole("%.2f %s: Acquisita Missione: Destinazione %s"% (now(),self.id,self.dest))
-
-	def distanza (self,staz):
-		self.dist=0
-		self.v="*"
-		self.a=cerca_elemento(self.pos,percorso) 
-		self.b=cerca_elemento(staz,percorso)
-		self.v= self.verso
-#		gui.writeConsole("A = %s a  B = %s Distanza = %d"% (self.a.id,self.b.id,self.dist))
-		while self.a.id!=self.b.id:
-#			gui.writeConsole("A = %s a  B = %s verso %s Distanza = %d"% (self.a.id,self.b.id,self.v,self.dist))
-			if self.a.tipo =="tratto":
-				self.dist=self.dist+int(self.a.lunghezza)
-				if (self.v=="+"):
-					self.v=self.a.next_p[-1]
-					self.a=cerca_elemento(self.a.next_p[:-1],percorso) #----- Si posiziona sul tratto successivo
-				elif (self.v=="-"):
-					self.v=self.a.next_m[-1]
-					self.a=cerca_elemento(self.a.next_m[:-1],percorso) #----- Si posiziona sul tratto successivo
-			elif self.a.tipo =="incrocio":
-				self.v=self.a.cerca_per(self.b.id)[-1]	
-				self.a=cerca_elemento(self.a.cerca_per(self.b.id)[:-1],percorso)				
-			else:
-				self.v=self.a.next[-1]
-				self.a=cerca_elemento(self.a.next[:-1],percorso)
-		gui.writeConsole("%.2f %s: Distanza da %s  = %d"% (now(),self.id,staz,self.dist))
-		return self.dist
-
-	def mission (self,stazLoad):
-		self.stato="MISSION"
-		self.cambio_stato=1;
-		self.destinazione(stazLoad)
-			
-			
-#----------Fine Classe AGV-------------------------------------------------------------------------------------------------------------------------------------------------------				
-
-
-
-
-# class agv (Process):
-
-	# def __init__(self,nome,velmax,batlevel,ini_staz,index):
-		# Process.__init__(self, name=nome)
-		# self.id=nome
-		# self.tipo="agv"
-		# self.batlevel=batlevel
-		# self.pos=ini_staz
-		# self.park=ini_staz
-		# self.dest="Nessuna"
-		# self.load=0		 
-		# self.stato = "LIBERO"
-		# self.v_max=int(velmax)
-		# self.vel=0 
-		# self.verso="*" 		##may be "+" , "-" or "*"
-		# self.Ti=0
-		# self.Tlibero=0
-		# self.Ttraveling=0
-		# self.Tmission=0
-		# self.mlibero=index
-		# self.mtraveling=index+1
-		# self.mmission=index+2
-		# gui.writeConsole("Definita macchina %s  %s Livello Batteria= %s in attesa alla stazione = %s "% (self.tipo,self.id,self.batlevel,self.pos))
-
-	# def pilota (self):
-		# self.Tcambio=now()
-		# self.cambio_stato=1
-		# while True:
-			# if self.cambio_stato:
-				# gui.writeConsole("%.2f %s: Stato %s "% (now(),self.id,self.stato))
-				# gui.simulation[self.mlibero].observe(self.Tlibero)
-				# gui.simulation[self.mtraveling].observe(self.Ttraveling)
-				# gui.simulation[self.mmission].observe(self.Tmission)
-				# self.cambio_stato=0
-			# if (self.stato =="LIBERO"):
-				# yield hold,self,1
-				# self.Tlibero=self.Tlibero+now()-self.Ti
-				# self.Ti=now()
-				# if (self.dest!="Nessuna"):
-					# self.locate=cerca_elemento(self.pos,percorso) 
+	def calcola_distanza (self,x1,y1,x2,y2):
+		return math.sqrt((x2-x1)**2+(y2-y1)**2)				
+					
 # #					gui.writeConsole("%.2f  Trovata Postazione iniziale:  %s in  %s"% (now(),self.id,self.locate.id))
 					# if (self.locate):
-
 						# self.stato="MISSION"
 						# self.cambio_stato= 1
 			# elif (self.stato=="TRAVELING") or (self.stato =="MISSION"):
@@ -644,45 +520,52 @@ class cp (Process):
 # #                  				gui.writeConsole("%.2f %s cerca %s"% (now(),self.id,self.locate.next[:-1]))
 						# self.locate=cerca_elemento(self.locate.next[:-1],percorso) #----- Si posiziona sul (punta al)  tratto successivo
 # #                  				gui.writeConsole("%.2f %s Trovato %s"% (now(),self.id,self.locate.id))
-# #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+	def calcola_distanza (self,x1,y1,x2,y2):
+		return math.sqrt((x2-x1)**2+(y2-y1)**2)
+
 		
-	# def destinazione(self,dest):
-		# self.dest=dest
-                # gui.writeConsole("%.2f %s: Acquisita Missione: Destinazione %s"% (now(),self.id,self.dest))
+	def destinazione(self,dest):
+		self.dest=dest
+		gui.writeConsole("%.2f %s: Acquisita Missione: Destinazione %s"% (now(),self.id,self.dest))
+		
 
-	# def distanza (self,staz):
-		# self.dist=0
-		# self.v="*"
-		# self.a=cerca_elemento(self.pos,percorso) 
-		# self.b=cerca_elemento(staz,percorso)
-		# self.v= self.verso
-# #		gui.writeConsole("A = %s a  B = %s Distanza = %d"% (self.a.id,self.b.id,self.dist))
-		# while self.a.id!=self.b.id:
-# #			gui.writeConsole("A = %s a  B = %s verso %s Distanza = %d"% (self.a.id,self.b.id,self.v,self.dist))
-			# if self.a.tipo =="tratto":
-				# self.dist=self.dist+int(self.a.lunghezza)
-				# if (self.v=="+"):
-					# self.v=self.a.next_p[-1]
-					# self.a=cerca_elemento(self.a.next_p[:-1],percorso) #----- Si posiziona sul tratto successivo
-				# elif (self.v=="-"):
-					# self.v=self.a.next_m[-1]
-					# self.a=cerca_elemento(self.a.next_m[:-1],percorso) #----- Si posiziona sul tratto successivo
-			# elif self.a.tipo =="incrocio":
-				# self.v=self.a.cerca_per(self.b.id)[-1]	
-				# self.a=cerca_elemento(self.a.cerca_per(self.b.id)[:-1],percorso)				
-			# else:
-				# self.v=self.a.next[-1]
-				# self.a=cerca_elemento(self.a.next[:-1],percorso)
-		# gui.writeConsole("%.2f %s: Distanza da %s  = %d"% (now(),self.id,staz,self.dist))
-		# return self.dist
+	def distanza (self,staz):
+		self.dist=0
+		self.v="*"
+		self.a=cerca_elemento(self.pos,percorso) 
+		self.b=cerca_elemento(staz,percorso)
+		self.v= self.verso
+#		gui.writeConsole("A = %s a  B = %s Distanza = %d"% (self.a.id,self.b.id,self.dist))
+		while self.a.id!=self.b.id:
+#			gui.writeConsole("A = %s a  B = %s verso %s Distanza = %d"% (self.a.id,self.b.id,self.v,self.dist))
+			if self.a.tipo =="tratto":
+				self.dist=self.dist+int(self.a.lunghezza)
+				if (self.v=="+"):
+					self.v=self.a.next_p[-1]
+					self.a=cerca_elemento(self.a.next_p[:-1],percorso) #----- Si posiziona sul tratto successivo
+				elif (self.v=="-"):
+					self.v=self.a.next_m[-1]
+					self.a=cerca_elemento(self.a.next_m[:-1],percorso) #----- Si posiziona sul tratto successivo
+			elif self.a.tipo =="incrocio":
+				self.v=self.a.cerca_per(self.b.id)[-1]	
+				self.a=cerca_elemento(self.a.cerca_per(self.b.id)[:-1],percorso)				
+			else:
+				self.v=self.a.next[-1]
+				self.a=cerca_elemento(self.a.next[:-1],percorso)
+		gui.writeConsole("%.2f %s: Distanza da %s  = %d"% (now(),self.id,staz,self.dist))
+		return self.dist
 
-	# def mission (self,stazLoad):
-		# self.stato="MISSION"
-		# self.cambio_stato=1;
-		# self.destinazione(stazLoad)
+	def mission (self,stazLoad):
+		self.stato="MISSION"
+		self.cambio_stato=1;
+		self.destinazione(stazLoad)
 			
 			
-# #----------Fine Classe AGV-------------------------------------------------------------------------
+#---------- Fine Classe CP ---------------------------------------------------------------------------------------------------------------------------				
+
 
 
 
@@ -717,7 +600,7 @@ class tratto (object):
 		
 class scarico (Process):
 
-	def __init__(self,nome,s,next,delay):
+	def __init__(self,nome,s,next,delay,xpos,ypos):
 
 		self.tipo="scarico"
 		self.id=nome
@@ -728,10 +611,12 @@ class scarico (Process):
 		self.next=next
 		self.delay=int(delay)
             	gui.writeConsole("Definito Scarico %s Capacity= %s next= %s Tempo di scarico = %d s"% (self.id,self.capacity,self.next,self.delay))
+		self.xpos=xpos
+		self.ypos=ypos
 
 class carico (Process):
 
-	def __init__(self,nome,s,next,consumer,delay,monitor,nrpeek):
+	def __init__(self,nome,s,next,consumer,delay,monitor,nrpeek,xpos,ypos):
 		Process.__init__(self, name=nome)
 		self.tipo="carico"
 		self.id=nome
@@ -747,6 +632,8 @@ class carico (Process):
 		self.nrpeek=int(nrpeek)
             	gui.writeConsole("Definito Carico %s Capacity= %s next= %s consumer=%s Tempo di Carico = %d s"% (self.id,self.capacity,self.next,self.consumer,self.delay))
          	gui.writeConsole("    ........Numero di pezzi prelevati ad ogni ciclo %s"% (self.nrpeek))
+		self.xpos=xpos
+		self.ypos=ypos
 
 	
 	# ------ da fare ----- # adattare logica selezione AGV a quella del CARROPONTE # ------ da fare ----- #
@@ -787,7 +674,7 @@ class incrocio (object):
 		self.id=nome
 		self.nexts=destination_parser(nexts)
 #		self.r=Resource(capacity=1,name="incrocio",unitName=self.id)
-            	gui.writeConsole("Definito Incrocio %s"% (self.id))
+            	gui.writeConsole("Definito incrocio %s"% (self.id))
 		for i in self.nexts:
 			gui.writeConsole("        Per %s  segui  %s"% (i[0],i[1]))
 
@@ -800,9 +687,11 @@ class incrocio (object):
 
 
 class park(object):
-	def __init__(self,nome,next):
+	def __init__(self,nome,next,xpos,ypos):
 		self.id=nome
 		self.tipo="park"
+		self.xpos=xpos
+		self.ypos=ypos
 		if (next[-1]=="+") or (next[-1]=="-"):
 			self.nex=next
 		else:
@@ -889,37 +778,43 @@ def read_layout():
 		for e in l.childNodes:
 #			gui.writeConsole(e.nodeName)
 			if (e.nodeName=="tratto"):
-                		a= e.getAttribute("nome")
-                		c= e.getAttribute("vmax") 
-                		b= e.getAttribute("lunghezza")
-                		d= e.getAttribute("next_p")
+				a= e.getAttribute("nome")
+				c= e.getAttribute("vmax") 
+				b= e.getAttribute("lunghezza")
+				d= e.getAttribute("next_p")
 				f= e.getAttribute("next_m")
 				g= e.getAttribute("full")
-               			percorso.append(tratto(a,b,c,d,f,g))
+				percorso.append(tratto(a,b,c,d,f,g))
 			if (e.nodeName=="incrocio"):
 				a= e.getAttribute("nome")
 				b=e.getAttribute("destmap")
 				percorso.append(incrocio(a,b))
 			if (e.nodeName=="carico"):
-               			a= e.getAttribute("nome")
-               			b= e.getAttribute("size") 
-               			c= e.getAttribute("next")
+				a= e.getAttribute("nome")
+				b= e.getAttribute("size") 
+				c= e.getAttribute("next")
 				d= e.getAttribute("to")
 				ee= e.getAttribute("delay")
-    				gui.simulation.append(Monitor(name=a+" Queue",ylab="Coils",tlab="time"))
+				gui.simulation.append(Monitor(name=a+" Queue",ylab="Coils",tlab="time"))
 				f=len(gui.simulation)-1
 				g=e.getAttribute("nrpeek")
-               			percorso.append(carico(a,b,c,d,ee,f,g))
+				x=e.getAttribute("xpos")
+				y=e.getAttribute("ypos")
+				percorso.append(carico(a,b,c,d,ee,f,g,int(x),int(y)))
 			if (e.nodeName=="scarico"):
 				a= e.getAttribute("nome")
-               			b= e.getAttribute("size") 
-               			c= e.getAttribute("next")
+				b= e.getAttribute("size") 
+				c= e.getAttribute("next")
 				d= e.getAttribute("delay")
-               			percorso.append(scarico(a,b,c,d))
+				x=e.getAttribute("xpos")
+				y=e.getAttribute("ypos")
+				percorso.append(scarico(a,b,c,d,int(x),int(y)))
 			if (e.nodeName=="park"):
-                		a= e.getAttribute("nome")
-               			b= e.getAttribute("next")
-               			percorso.append(park(a,b))
+				a= e.getAttribute("nome")
+				b= e.getAttribute("next")
+				x=e.getAttribute("xpos")
+				y=e.getAttribute("ypos")
+				percorso.append(park(a,b,int(x),int(y)))
 
 def read_prodotti():
 	xml_data = minidom.parse("impianto.xml")
@@ -933,34 +828,52 @@ def read_prodotti():
 				f=e.getAttribute("verniciato")
 				vetrina.append(template(int(c),int(d),int(b),f))
 
-						
+def read_magazzini():
+	xml_data = minidom.parse("impianto.xml")
+	for l in xml_data.getElementsByTagName("magazzini"):
+		for e in l.childNodes:
+#			gui.writeConsole(e.nodeName)
+			if (e.nodeName=="magazzino"):
+				n= e.getAttribute("nome")
+				f= e.getAttribute("n_file") 
+				b= e.getAttribute("n_box")
+				xo= e.getAttribute("x_origine")
+				yo= e.getAttribute("y_origine")
+				xp= e.getAttribute("x_passo")
+				yp= e.getAttribute("y_passo")
+				p= e.getAttribute("peso_max")
+				cp= e.getAttribute("cp_associato")
+				magazzini.append(magazzino(n,int(f),int(b),(xo,yo),(xp,yp),p,cp))
 						
 def read_handling():
 	xml_data = minidom.parse("impianto.xml")
 	for h in xml_data.getElementsByTagName("handler"):
 		for m in h.childNodes:
-#			gui.writeConsole(m.nodeName)
+			#gui.writeConsole(m.nodeName)
 			if (m.nodeName == "cp"):
-                		a= m.getAttribute("nome")
-                		b= m.getAttribute("vel_max") 
-                		d= m.getAttribute("pos")
-    				gui.simulation.append(Monitor(name=a+" LIBERO Time",ylab=" Secondi",tlab="time"))
+				a= m.getAttribute("nome")
+				b= m.getAttribute("vel_max") 
+				d= m.getAttribute("pos")
+				gui.simulation.append(Monitor(name=a+" LIBERO Time",ylab=" Secondi",tlab="time"))
 				f=len(gui.simulation)-1
-    				gui.simulation.append(Monitor(name=a+" TRAVELING Time",ylab=" Secondi",tlab="time"))
-    				gui.simulation.append(Monitor(name=a+" MISSION Time",ylab=" Secondi",tlab="time"))
-				movimentazione.append(cp(a,b,d,f))
+				gui.simulation.append(Monitor(name=a+" TRAVELING Time",ylab=" Secondi",tlab="time"))
+				gui.simulation.append(Monitor(name=a+" MISSION Time",ylab=" Secondi",tlab="time"))
+				for mg in magazzini:
+					if (mg.cp_associato == a): #Trovato magazzino da associare al cp corrente
+						movimentazione.append(cp(a,b,d,f,mg))
+						#gui.writeConsole("------------DEBUG: a=%s, mg.cp_associato=%s"%(a, mg.cp_associato))
 			if (m.nodeName == "producer"):
-                		a= m.getAttribute("nome")
-                		b= m.getAttribute("to") 
-                		c= m.getAttribute("rate")
-                		d= m.getAttribute("sigma")
-                		e= m.getAttribute("tipo_prodotto")
+				a= m.getAttribute("nome")
+				b= m.getAttribute("to") 
+				c= m.getAttribute("rate")
+				d= m.getAttribute("sigma")
+				e= m.getAttribute("tipo_prodotto")
 				movimentazione.append(producer(a,b,c,d,e, db_rotoli))
 			if (m.nodeName == "consumer"):
-               			a= m.getAttribute("nome")
-                		b= m.getAttribute("from") 
-                		c= m.getAttribute("rate")
-                		d= m.getAttribute("sigma")
+				a= m.getAttribute("nome")
+				b= m.getAttribute("from") 
+				c= m.getAttribute("rate")
+				d= m.getAttribute("sigma")
 				movimentazione.append(consumer(a,b,c,d))
 
 def model():
@@ -969,31 +882,77 @@ def model():
     db_rotoli=BaseDati()	#Crea database coils
     del movimentazione[:]
     del percorso[:]
+    del magazzini[:]
     del gui.simulation[:]
     read_prodotti()
     read_layout()
+    read_magazzini()
     read_handling()
+
     
     #rotolo=template (800,600,1100)
+    
+    #crea magazzino
+    passo=[40,30]
+    org=[70,70]
+    n_file=20
+    n_box=10
+    mag=magazzino ("MAG1",n_file,n_box,org,passo,10,"CP1")
+	
+    
+    # vengono riempite 10 celle a caso
+    for i in range(1,10):
+		mag.set_cella_occupata(int(random.random()*n_file),int(random.random()*n_box),int(random.random()*1000))
+	
 	
 	
     for p in movimentazione:
         if (p.tipo =="producer"):
 	       	activate(p,p.produce(),at=0)
-		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
+        	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
         if (p.tipo =="consumer"):
         	activate(p,p.consume(),at=0)
-		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
+        	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
         if (p.tipo =="cp"):
         	activate(p,p.pilota(),at=0)
-		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
+        	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
+
 
     for p in percorso:
         if (p.tipo =="carico"):
-		activate(p,p.automate(),at=0)
-		gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
+        	activate(p,p.automate(),at=0)
+        	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
 	
-	i=0
+	# #Associa ogni magazzino al proprio carroponte
+	# n_mag=1
+	# n_cp=1
+	# for m in magazzini:
+		# if (m.id ==("MAG"+str(n_mag))):
+			# for p in movimentazione:
+				# if (p.tipo =="cp"):
+					# if (p.id ==("CP"+str(n_cp))):
+						# #gui.writeConsole("DEBUG: m.id=%s, m.id=%s"%(m.id, p.id))
+						# p.mag_associato=m	#Associa ogni magazzino al proprio carroponte
+						# n_cp=n_cp+1
+			# n_mag=n_mag+1
+	
+	
+	# #Associa ogni magazzino al proprio carroponte
+	# n_mag=1
+	# n_cp=1
+	# for m in magazzini:
+		# if (m.id ==("MAG"+str(n_mag))):
+			# for p in movimentazione:
+				# if (p.tipo =="cp"):
+					# if (p.id ==m.cp_associato):
+						# #gui.writeConsole("DEBUG: m.id=%s, m.id=%s"%(m.id, p.id))
+						# p.mag_associato=m	#Associa ogni magazzino al proprio carroponte
+						# n_cp=n_cp+1
+			# n_mag=n_mag+1	
+	
+	
+	
+	#i=0
 	for r in vetrina:
 		#DEBUG
 		#da fare
@@ -1060,7 +1019,7 @@ def  magazzino_gen ():
 	org=[70,70]
 	n_file=20
 	n_box=10
-	mag=magazzino (n_file,n_box,org,passo,10,screen)
+	mag=magazzino ("MAG1",n_file,n_box,org,passo,10,"CP1",screen)
 
 	# Preferenze ambiente grafico magazzino #1
 	window_title="Warehouse 1: Ground Level"
@@ -1097,7 +1056,7 @@ def  magazzino_gen ():
 	org=[70,85]
 	n_file=10
 	n_box=10
-	mag2=magazzino (n_file,n_box,org,passo,10, screen)
+	mag2=magazzino ("MAG2",n_file,n_box,org,passo,10,"CP2",screen)
 
 
 	# Preferenze ambiente grafico magazzino #2
@@ -1151,10 +1110,12 @@ class MyGUI(SimGUI):
 		self.run.add_command(label="Riempi magazzino (PROVA)", command=magazzino_gen,underline=0)
 		self.params=Parameters(duration=28800,destinazione="C2",nrLaunchers=3)
       
+# Variabili GLOBALI
 root=Tk()
 gui=MyGUI(root,title="SimCoilMag",doc=__doc__,consoleHeight=50)
 gui.simulation=[]
 vetrina=[]
+magazzini=[]
 movimentazione=[]
 percorso=[]
 archivio=[]

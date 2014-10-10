@@ -17,21 +17,27 @@
 	</prodotto>
 	<handler>
 		<cp nome="CP1" vel_max="30" pos="home1"/>
+		<cp nome="CP2" vel_max="35" pos="home2"/>
  		<producer nome="MAC1" to="SP1"  rate="1800" sigma="100" tipo_prodotto="Tipo1"/>
 		<!--- <producer nome="MAC2" to="SP2"  rate="1700" sigma="80" tipo_prodotto="Tipo2"/> -->
 		<consumer nome="SPD1" from="SS1" rate="600" sigma="50"/>
 	</handler>
+	<magazzini>
+		<magazzino nome="MAG1" n_file="20" n_box="10" x_origine="70" y_origine="70" x_passo="40" y_passo="30" peso_max="10" cp_associato="CP1"></magazzino>
+		<magazzino nome="MAG2" n_file="30" n_box="30" x_origine="50" y_origine="30" x_passo="50" y_passo="35" peso_max="5" cp_associato="CP1"></magazzino>
+		<magazzino nome="MAG3" n_file="30" n_box="30" x_origine="50" y_origine="30" x_passo="50" y_passo="35" peso_max="5" cp_associato="CP2"></magazzino>	
+	</magazzini>
 	<layout>
-		<scarico nome="SS1" size="1" next="R1-" delay="60"></scarico>
-		<carico nome="SP1" to ="SS1" size="1" nrpeek="1" next="Rp1+" delay="60" ></carico>
-		<carico nome="SP2" to ="SS1" size="1" nrpeek="1" next="Rp1+" delay="50" ></carico>
+		<scarico nome="SS1" size="1" next="R1-" delay="60" xpos="9" ypos="93"></scarico>
+		<carico nome="SP1" to ="SS1" size="1" nrpeek="1" next="Rp1+" delay="60" xpos="10" ypos="100"></carico>
+		<carico nome="SP2" to ="SS1" size="1" nrpeek="1" next="Rp1+" delay="50" xpos="15" ypos="200"></carico>
 		<incrocio nome="I1" destmap="SP1=Rp1-,SS1=R1+,SP2=R3-,home1=home1,home2=home2"></incrocio>
 		<tratto nome="Rp1" lunghezza="10"  vmax="15" next_p="I1" next_m="SP1" full="N"/>
 		<tratto nome="R1"  lunghezza="10"  vmax="30" next_p="SS1" next_m="I1-" full="N"/>
 		<tratto nome="Rp2" lunghezza="10"  vmax="20" next_p="Cv3+" next_m="SP2" full="N"/>
 		<tratto nome="Cv3" lunghezza="10"  vmax="15" next_p="R3+" next_m="Rp2-" full="N"/>
 		<tratto nome="R3"  lunghezza="25"  vmax="30" next_p="I1" next_m="Cv3-" full="N"/>
-		<park nome="home1" next="I1"></park>
-		<park nome="home2" next="I1"></park>
+		<park nome="home1" next="I1" xpos="5" ypos="85"></park>
+		<park nome="home2" next="I1" xpos="12" ypos="90"></park>
 	</layout>
 </impianto>
