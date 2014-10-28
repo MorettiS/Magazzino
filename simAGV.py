@@ -335,6 +335,9 @@ class producer(Process):
 			#gui.writeConsole("%.2f %s: Depositato un Coil Codice_%s # su %s"% (now(),self.id,self.count,self.buffer.id))
 			gui.writeConsole("%.2f %s: Depositato Coil ID: %s su %s"% (now(),self.id,str(r[0]),self.buffer.id))
 			self.db.add(r[0],0,r[1],r[2],r[3],(r[4]=="True"))
+			
+			#Comunica ID coil prodotto al carico e al database
+			self.buffer.set_id_coil(r[0])
 			gui.writeConsole("%.2f %s: Aggiunto Coil ID: %s al database - %s, Verniciato: %s"% (now(),self.id,str(r[0]), self.tipo_rotolo, r[4]))
 			
 	def define_new_consumer (sef,consumer):
@@ -392,10 +395,19 @@ class cp (Process):
 		self.mmission=index+2
 		self.durata_prelievo=60
 		self.sigma_prelievo=1
-		self.magazzini=[]
+		self.durata_scarico=55
+		self.sigma_scarico=2
+		self.posizione_corrente=stazione("POS",0,0)  #[nome,x,y]
+		#self.magazzini=[]
 		gui.writeConsole("Definita macchina %s  %s in attesa alla stazione = %s "% (self.tipo,self.id,self.pos))
 
 	def pilota (self):
+		self.locate=cerca_elemento(self.pos,percorso) #Posizione iniziale
+		self.posizione_corrente.id=self.locate.id
+		self.posizione_corrente.xpos=self.locate.xpos
+		self.posizione_corrente.ypos=self.locate.ypos
+		gui.writeConsole("Posizione iniziale carroponte %s: (%d,%d) "% (self.posizione_corrente.id, self.posizione_corrente.xpos, self.posizione_corrente.ypos)) #DEBUG
+		
 		self.Tcambio=now()
 		self.cambio_stato=1
 		gui.writeConsole("Associato magazzino %s a carroponte %s"% (self.mag_associato.id, self.id)) #DEBUG 
@@ -411,28 +423,91 @@ class cp (Process):
 				self.Tlibero=self.Tlibero+now()-self.Ti
 				self.Ti=now()
 				if (self.dest!="Nessuna"):
-					self.locate=cerca_elemento(self.pos,percorso)
-					gui.writeConsole("Posizione iniziale carroponte %s: (%d,%d) "% (self.locate.id, self.locate.xpos, self.locate.ypos)) #DEBUG
-					#gui.writeConsole("Distanza: %f"% (self.calcola_distanza(self.locate.xpos,self.locate.ypos,0,0))) #DEBUG
+					gui.writeConsole("Posizione corrente carroponte %s: (%d,%d) "% (self.posizione_corrente.id, self.posizione_corrente.xpos, self.posizione_corrente.ypos)) #DEBUG
 					
 					if (self.locate):
 						self.stato="MISSION"
 						self.cambio_stato= 1
 					
-			if (self.stato =="MISSION"):
-				self.dsz=cerca_elemento(self.dest,percorso)
-				self.Tmission=self.Tmission+now()-self.Ti
-				gui.writeConsole("Devo andare qui: %s coordinate: (%d,%d) "% (self.dest,self.dsz.xpos,self.dsz.ypos)) #DEBUG 
+			elif (self.stato=="TRAVELING") or (self.stato =="MISSION"):
+				if (self.stato=="TRAVELING"):
+					self.Ttraveling=self.Ttraveling+now()-self.Ti
+				else:
+					self.Tmission=self.Tmission+now()-self.Ti
 				
-				self.t_attesa=self.calcola_distanza(self.locate.xpos,self.locate.ypos,self.dsz.xpos,self.dsz.ypos)/self.v_max+random.gauss(self.durata_prelievo,self.sigma_prelievo)
+				#Stato: MISSION
+				self.Ti=now()
+				self.dst=cerca_elemento(self.dest,percorso)
+				self.Tmission=self.Tmission+now()-self.Ti
+				gui.writeConsole("Sono qui: %s coordinate: (%d,%d) "% (self.posizione_corrente.id,self.posizione_corrente.xpos,self.posizione_corrente.ypos)) #DEBUG 
+				gui.writeConsole("Devo andare qui: %s coordinate: (%d,%d) "% (self.dest,self.dst.xpos,self.dst.ypos)) #DEBUG 
+				gui.writeConsole("Distanza: %f "% (self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.dst.xpos,self.dst.ypos))) #DEBUG
+				
+				#Attesa proporzionale alla distanza percorsa per andare al punto di prelievo + tempo di prelievo
+				self.t_attesa=self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.dst.xpos,self.dst.ypos)/self.v_max+random.gauss(self.durata_prelievo,self.sigma_prelievo)
 				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
 				yield hold,self,self.t_attesa
-				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
-				#Individua sella di destinazione all'interno del magazzino
-				#magazzino=set_cella_occupata(self,fila,box,id
 				
-				#self.stato="LIBERO"
-				#self.cambio_stato=1
+				#Arrivato a destinazione (stazione di PRELIEVO)
+				self.id_coil_prelevato=self.dst.get_id_coil()
+				gui.writeConsole("%.2f Prelevato coil ID %s da %s"% (now(), self.id_coil_prelevato, self.dst.id)) #DEBUG 
+				
+				#Aggiorna posizione carroponte
+				#self.locate=self.dst
+				self.posizione_corrente.id=self.dst.id
+				self.posizione_corrente.xpos=self.dst.xpos
+				self.posizione_corrente.ypos=self.dst.ypos
+							
+				#Carico
+				if (self.dst.tipo =="carico"):
+					reactivate(self.dst,at=now())
+					self.stato="MISSION"
+					self.cambio_stato=1
+					self.load=self.load+self.dst.nrpeek
+					yield get,self,self.dst.store,self.dst.nrpeek
+					yield hold,self,self.dst.delay
+				
+				
+				
+				
+				
+				#Individua sella di destinazione all'interno del magazzino secondo un criterio di parcatura da stabilire
+				#
+				# DA FARE...
+				#
+				
+				#DEBUG: per semplicita' al momento la cella di destinazione e' sempre la (1,1)
+				self.cella_dest_x=1
+				self.cella_dest_y=1
+				
+				#Calcola distanza da posizione attuale a sella destinazione e aspetta un tempo proporzionale a tale distanza + tempo di scarico
+				gui.writeConsole("Distanza da posizione attuale (%s) a sella di destinazione (%d,%d): %f "% (self.posizione_corrente.id, self.cella_dest_x,self.cella_dest_y,self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.cella_dest_x,self.cella_dest_y)))
+				
+				self.t_attesa=self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.cella_dest_x,self.cella_dest_y)/self.v_max+random.gauss(self.durata_scarico,self.sigma_scarico)
+				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
+				yield hold,self,self.t_attesa
+				
+				#Aggiorna posizione carroponte
+				self.posizione_corrente.id="CELLA_MAG"
+				self.posizione_corrente.xpos=self.cella_dest_x
+				self.posizione_corrente.ypos=self.cella_dest_y
+				
+				#Deposita il coil nella sella di destinazione
+				self.mag_associato.set_cella_occupata(self.cella_dest_x,self.cella_dest_y,self.id_coil_prelevato)
+				gui.writeConsole("%.2f Depositato coil ID %s su %s (%d,%d)"% (now(), self.id_coil_prelevato, self.mag_associato.id,self.posizione_corrente.xpos,self.posizione_corrente.ypos)) #DEBUG 
+				
+				
+				#Aggiorna nel database le coordinate del coil depositato all'interno del magazzino
+				#Servono funzioni set_fila, set_box, ecc.
+				#
+				# DA FARE...
+				#
+				
+				
+
+		
+				self.stato="LIBERO"
+				self.cambio_stato=1
 
 			#sys.exit()
 				
@@ -440,8 +515,7 @@ class cp (Process):
 		#self.magazzini.append(magazzino)
 		pass
 		
-	def calcola_distanza (self,x1,y1,x2,y2):
-		return math.sqrt((x2-x1)**2+(y2-y1)**2)				
+		
 					
 # #					gui.writeConsole("%.2f  Trovata Postazione iniziale:  %s in  %s"% (now(),self.id,self.locate.id))
 					# if (self.locate):
@@ -619,6 +693,7 @@ class carico (Process):
 	def __init__(self,nome,s,next,consumer,delay,monitor,nrpeek,xpos,ypos):
 		Process.__init__(self, name=nome)
 		self.tipo="carico"
+		self.id_coil_da_producer="XXX"
 		self.id=nome
 		self.capacity=int(s)
 		self.container=[]
@@ -635,6 +710,13 @@ class carico (Process):
 		self.xpos=xpos
 		self.ypos=ypos
 
+	
+	def set_id_coil(self,id_coil):
+		#gui.writeConsole("id_coil in carico: %s"% (id_coil))
+		self.id_coil_da_producer=id_coil
+		
+	def get_id_coil(self):
+		return self.id_coil_da_producer
 	
 	# ------ da fare ----- # adattare logica selezione AGV a quella del CARROPONTE # ------ da fare ----- #
 	def automate(self):
@@ -661,6 +743,7 @@ class carico (Process):
 							self.cp_id=self.i
 					self.i=self.i+1
 				self.flag=1
+				#gui.writeConsole("----- DEBUG: ID coil da assegnare: %s "% (self.id_coil_da_producer)) #DEBUG
 				if (self.cp_id > -1):
 					self.flag=0
 					self.cp[self.cp_id].mission(self.id)
@@ -700,6 +783,13 @@ class park(object):
             	gui.writeConsole("Definita Posizione di Home %s "% (self.id))
 
 
+class stazione(object):
+	def __init__(self,nome,xpos,ypos):
+		self.id=nome
+		self.xpos=xpos
+		self.ypos=ypos
+
+				
 #----------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------
