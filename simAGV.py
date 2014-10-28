@@ -279,7 +279,14 @@ class magazzino ():
 class BaseDati():
 	def __init__(self):
 		self.me = dict()
-		
+
+	def aggiorna_posizione(self,id,fila,box,livello):
+		if (id in self.me):
+			self.me[id]={"fila":fila,"box":box,"livello":livello,}
+			return True
+		else:
+			return False
+			
 	def add(self,id,spessore,larghezza,diametro,peso,verniciato):
 		if not(id in self.me):
 			self.me[id]={"diametro":diametro,"larghezza":larghezza,"peso":peso,"verniciato":verniciato,"fila":-1,"box":-1,"livello":-1,}
@@ -292,7 +299,7 @@ class BaseDati():
 			return self.me[id]
 		else:
 			return False
-	
+
 	def cancella(self,id):
 		if (id in self.archivio):
 			del self.archivio[id]
@@ -373,9 +380,10 @@ class consumer (Process):
 #-------------------------------------------- Processo di Gestione Movimentazione (CP) ---------------------------------------------------------------------------
 class cp (Process):
 
-	def __init__(self,nome,velmax,ini_staz,index,mag_associato=None):
+	def __init__(self,nome,velmax,ini_staz,index,mag_associato=None,db=None):
 		Process.__init__(self, name=nome)
 		self.id=nome
+		self.db=db
 		self.tipo="cp"
 		self.mag_associato=mag_associato
 		self.pos=ini_staz
@@ -476,9 +484,10 @@ class cp (Process):
 				# DA FARE...
 				#
 				
-				#DEBUG: per semplicita' al momento la cella di destinazione e' sempre la (1,1)
-				self.cella_dest_x=1
-				self.cella_dest_y=1
+				#DEBUG: per semplicita' al momento la cella di destinazione e' CASUALE
+				self.cella_dest_x=int(random.random()*self.mag_associato.n_file)
+				self.cella_dest_y=int(random.random()*self.mag_associato.n_box)
+				
 				
 				#Calcola distanza da posizione attuale a sella destinazione e aspetta un tempo proporzionale a tale distanza + tempo di scarico
 				gui.writeConsole("Distanza da posizione attuale (%s) a sella di destinazione (%d,%d): %f "% (self.posizione_corrente.id, self.cella_dest_x,self.cella_dest_y,self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.cella_dest_x,self.cella_dest_y)))
@@ -502,8 +511,9 @@ class cp (Process):
 				#
 				# DA FARE...
 				#
-				
-				
+				#self.db.cerca(self.id_coil_prelevato)
+				self.db.aggiorna_posizione(self.id_coil_prelevato,self.cella_dest_x,self.cella_dest_y,self.mag_associato.id) #DEBUG 
+				gui.writeConsole(" -------> %s "% (self.db.cerca(self.id_coil_prelevato))) #DEBUG 
 
 		
 				self.stato="LIBERO"
@@ -950,7 +960,7 @@ def read_handling():
 				gui.simulation.append(Monitor(name=a+" MISSION Time",ylab=" Secondi",tlab="time"))
 				for mg in magazzini:
 					if (mg.cp_associato == a): #Trovato magazzino da associare al cp corrente
-						movimentazione.append(cp(a,b,d,f,mg))
+						movimentazione.append(cp(a,b,d,f,mg,db_rotoli))
 						#gui.writeConsole("------------DEBUG: a=%s, mg.cp_associato=%s"%(a, mg.cp_associato))
 			if (m.nodeName == "producer"):
 				a= m.getAttribute("nome")
@@ -966,6 +976,8 @@ def read_handling():
 				d= m.getAttribute("sigma")
 				movimentazione.append(consumer(a,b,c,d))
 
+
+				
 def model():
     global db_rotoli
     initialize()
@@ -1061,8 +1073,6 @@ def model():
 		# gui.writeConsole("%s : %s"%(t[i] ,x))
 		# i=i+1
 #    gui.writeStatusLine("%s rockets launched in %.1f minutes"%(Launcher.nrLaunched,now()))
-
-
 
 
 
