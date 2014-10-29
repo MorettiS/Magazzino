@@ -24,8 +24,8 @@
 	</handler>
 	<magazzini>
 		<magazzino nome="MAG1" n_file="20" n_box="10" x_origine="70" y_origine="70" x_passo="40" y_passo="30" peso_max="10" cp_associato="CP1"></magazzino>
-		<magazzino nome="MAG2" n_file="30" n_box="30" x_origine="50" y_origine="30" x_passo="50" y_passo="35" peso_max="5" cp_associato="CP1"></magazzino>
-		<magazzino nome="MAG3" n_file="30" n_box="30" x_origine="50" y_origine="30" x_passo="50" y_passo="35" peso_max="5" cp_associato="CP2"></magazzino>	
+		<magazzino nome="MAG2" n_file="15" n_box="5" x_origine="50" y_origine="30" x_passo="50" y_passo="35" peso_max="5" cp_associato="CP1"></magazzino>
+		<magazzino nome="MAG3" n_file="20" n_box="7" x_origine="50" y_origine="30" x_passo="50" y_passo="35" peso_max="5" cp_associato="CP2"></magazzino>	
 	</magazzini>
 	<layout>
 		<scarico nome="SS1" size="1" next="R1-" delay="60" xpos="9" ypos="93"></scarico>

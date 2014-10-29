@@ -409,7 +409,7 @@ class cp (Process):
 		#self.magazzini=[]
 		gui.writeConsole("Definita macchina %s  %s in attesa alla stazione = %s "% (self.tipo,self.id,self.pos))
 
-	def pilota (self):
+	def crane_driver (self):
 		self.locate=cerca_elemento(self.pos,percorso) #Posizione iniziale
 		self.posizione_corrente.id=self.locate.id
 		self.posizione_corrente.xpos=self.locate.xpos
@@ -458,7 +458,7 @@ class cp (Process):
 				
 				#Arrivato a destinazione (stazione di PRELIEVO)
 				self.id_coil_prelevato=self.dst.get_id_coil()
-				gui.writeConsole("%.2f Prelevato coil ID %s da %s"% (now(), self.id_coil_prelevato, self.dst.id)) #DEBUG 
+				gui.writeConsole("%.2f %s: Prelevato coil ID %s da %s"% (now(),self.id,self.id_coil_prelevato,self.dst.id)) #DEBUG 
 				
 				#Aggiorna posizione carroponte
 				#self.locate=self.dst
@@ -503,7 +503,7 @@ class cp (Process):
 				
 				#Deposita il coil nella sella di destinazione
 				self.mag_associato.set_cella_occupata(self.cella_dest_x,self.cella_dest_y,self.id_coil_prelevato)
-				gui.writeConsole("%.2f Depositato coil ID %s su %s (%d,%d)"% (now(), self.id_coil_prelevato, self.mag_associato.id,self.posizione_corrente.xpos,self.posizione_corrente.ypos)) #DEBUG 
+				gui.writeConsole("%.2f %s: Depositato coil ID %s su %s (%d,%d)"% (now(),self.id,self.id_coil_prelevato,self.mag_associato.id,self.posizione_corrente.xpos,self.posizione_corrente.ypos)) #DEBUG 
 				
 				
 				#Aggiorna nel database le coordinate del coil depositato all'interno del magazzino
@@ -513,9 +513,9 @@ class cp (Process):
 				#
 				#self.db.cerca(self.id_coil_prelevato)
 				self.db.aggiorna_posizione(self.id_coil_prelevato,self.cella_dest_x,self.cella_dest_y,self.mag_associato.id) #DEBUG 
-				gui.writeConsole(" -------> %s "% (self.db.cerca(self.id_coil_prelevato))) #DEBUG 
-
-		
+				gui.writeConsole("%.2f %s: Aggiunto Coil ID: %s al database"% (now(),self.id,self.id_coil_prelevato)) #DEBUG 
+				#gui.writeConsole("DEBUG -------> %s "% (self.db.cerca(self.id_coil_prelevato))) #DEBUG 
+	
 				self.stato="LIBERO"
 				self.cambio_stato=1
 
@@ -976,8 +976,23 @@ def read_handling():
 				d= m.getAttribute("sigma")
 				movimentazione.append(consumer(a,b,c,d))
 
-
 				
+				
+def visualizza_magazzini(magazzini):
+    #DEBUG
+    #Visualizza contenuto magazzini
+    stringa=""
+    for mg in magazzini:
+		gui.writeConsole("\n\nContenuto magazzino %s:\n"%(mg.id))
+		for b in range(0,mg.n_box):
+			#gui.writeConsole("\n")
+			for f in range(0,mg.n_file):
+				stringa = stringa + str(mg.get_fila(f)[b][0])[:1] + " "
+			gui.writeConsole("%s"%(stringa))
+			stringa=""
+
+
+			
 def model():
     global db_rotoli
     initialize()
@@ -994,17 +1009,17 @@ def model():
     
     #rotolo=template (800,600,1100)
     
-    #crea magazzino
-    passo=[40,30]
-    org=[70,70]
-    n_file=20
-    n_box=10
-    mag=magazzino ("MAG1",n_file,n_box,org,passo,10,"CP1")
+    # #crea magazzino
+    # passo=[40,30]
+    # org=[70,70]
+    # n_file=20
+    # n_box=10
+    # mag=magazzino ("MAG1",n_file,n_box,org,passo,10,"CP1")
 	
     
-    # vengono riempite 10 celle a caso
-    for i in range(1,10):
-		mag.set_cella_occupata(int(random.random()*n_file),int(random.random()*n_box),int(random.random()*1000))
+    # # vengono riempite 10 celle a caso
+    # for i in range(1,10):
+		# mag.set_cella_occupata(int(random.random()*n_file),int(random.random()*n_box),int(random.random()*1000))
 	
 	
 	
@@ -1016,43 +1031,13 @@ def model():
         	activate(p,p.consume(),at=0)
         	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
         if (p.tipo =="cp"):
-        	activate(p,p.pilota(),at=0)
+        	activate(p,p.crane_driver(),at=0)
         	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
-
 
     for p in percorso:
         if (p.tipo =="carico"):
         	activate(p,p.automate(),at=0)
         	gui.writeConsole("Attivato Processo %s %s"%(p.tipo,p.id))
-	
-	# #Associa ogni magazzino al proprio carroponte
-	# n_mag=1
-	# n_cp=1
-	# for m in magazzini:
-		# if (m.id ==("MAG"+str(n_mag))):
-			# for p in movimentazione:
-				# if (p.tipo =="cp"):
-					# if (p.id ==("CP"+str(n_cp))):
-						# #gui.writeConsole("DEBUG: m.id=%s, m.id=%s"%(m.id, p.id))
-						# p.mag_associato=m	#Associa ogni magazzino al proprio carroponte
-						# n_cp=n_cp+1
-			# n_mag=n_mag+1
-	
-	
-	# #Associa ogni magazzino al proprio carroponte
-	# n_mag=1
-	# n_cp=1
-	# for m in magazzini:
-		# if (m.id ==("MAG"+str(n_mag))):
-			# for p in movimentazione:
-				# if (p.tipo =="cp"):
-					# if (p.id ==m.cp_associato):
-						# #gui.writeConsole("DEBUG: m.id=%s, m.id=%s"%(m.id, p.id))
-						# p.mag_associato=m	#Associa ogni magazzino al proprio carroponte
-						# n_cp=n_cp+1
-			# n_mag=n_mag+1	
-	
-	
 	
 	#i=0
 	for r in vetrina:
@@ -1073,10 +1058,12 @@ def model():
 		# gui.writeConsole("%s : %s"%(t[i] ,x))
 		# i=i+1
 #    gui.writeStatusLine("%s rockets launched in %.1f minutes"%(Launcher.nrLaunched,now()))
+    visualizza_magazzini(magazzini)
+	
+    
 
 
-
-
+				
 def db_gen():
 	db_rotoli = BaseDati()
 #	id,spessore,larghezza,diametro,peso
