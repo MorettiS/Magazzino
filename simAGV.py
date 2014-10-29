@@ -453,29 +453,30 @@ class cp (Process):
 				
 				#Attesa proporzionale alla distanza percorsa per andare al punto di prelievo + tempo di prelievo
 				self.t_attesa=self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.dst.xpos,self.dst.ypos)/self.v_max+random.gauss(self.durata_prelievo,self.sigma_prelievo)
-				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
+				gui.writeConsole("%.2f Tempo di percorrenza: %f"% (now(), self.t_attesa)) #DEBUG 
 				yield hold,self,self.t_attesa
 				
-				#Arrivato a destinazione (stazione di PRELIEVO)
-				self.id_coil_prelevato=self.dst.get_id_coil()
-				gui.writeConsole("%.2f %s: Prelevato coil ID %s da %s"% (now(),self.id,self.id_coil_prelevato,self.dst.id)) #DEBUG 
-				
-				#Aggiorna posizione carroponte
-				#self.locate=self.dst
-				self.posizione_corrente.id=self.dst.id
-				self.posizione_corrente.xpos=self.dst.xpos
-				self.posizione_corrente.ypos=self.dst.ypos
+
 							
 				#Carico
 				if (self.dst.tipo =="carico"):
+					#Arrivato a destinazione (stazione di PRELIEVO)				
 					reactivate(self.dst,at=now())
 					self.stato="MISSION"
 					self.cambio_stato=1
+					gui.writeConsole("nrpeek: %d" %(self.dst.nrpeek)) #DEBUG
 					self.load=self.load+self.dst.nrpeek
 					yield get,self,self.dst.store,self.dst.nrpeek
 					yield hold,self,self.dst.delay
-				
-				
+
+					self.id_coil_prelevato=self.dst.get_id_coil()
+					gui.writeConsole("%.2f %s: Prelevato coil ID %s da %s"% (now(),self.id,self.id_coil_prelevato,self.dst.id)) #DEBUG 
+					
+					#Aggiorna posizione carroponte
+					#self.locate=self.dst
+					self.posizione_corrente.id=self.dst.id
+					self.posizione_corrente.xpos=self.dst.xpos
+					self.posizione_corrente.ypos=self.dst.ypos
 				
 				
 				
@@ -493,7 +494,7 @@ class cp (Process):
 				gui.writeConsole("Distanza da posizione attuale (%s) a sella di destinazione (%d,%d): %f "% (self.posizione_corrente.id, self.cella_dest_x,self.cella_dest_y,self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.cella_dest_x,self.cella_dest_y)))
 				
 				self.t_attesa=self.calcola_distanza(self.posizione_corrente.xpos,self.posizione_corrente.ypos,self.cella_dest_x,self.cella_dest_y)/self.v_max+random.gauss(self.durata_scarico,self.sigma_scarico)
-				gui.writeConsole("%.2f Tempo di attesa: %f"% (now(), self.t_attesa)) #DEBUG 
+				gui.writeConsole("%.2f Tempo di percorrenza: %f"% (now(), self.t_attesa)) #DEBUG 
 				yield hold,self,self.t_attesa
 				
 				#Aggiorna posizione carroponte
@@ -508,9 +509,7 @@ class cp (Process):
 				
 				#Aggiorna nel database le coordinate del coil depositato all'interno del magazzino
 				#Servono funzioni set_fila, set_box, ecc.
-				#
-				# DA FARE...
-				#
+
 				#self.db.cerca(self.id_coil_prelevato)
 				self.db.aggiorna_posizione(self.id_coil_prelevato,self.cella_dest_x,self.cella_dest_y,self.mag_associato.id) #DEBUG 
 				gui.writeConsole("%.2f %s: Aggiunto Coil ID: %s al database"% (now(),self.id,self.id_coil_prelevato)) #DEBUG 
